@@ -115,8 +115,8 @@ if __name__ == "__main__":
         os.mkdir("scad")
 
     mount = MirrorMount()
-    front = mount.front_plate() - translate((0,0,-mount.thickness/2))(owis_holes(move_to_minus_y=True))
-    back = mount.back_frame() - translate((0,0,-mount.thickness/2))(owis_holes(move_to_minus_y=True))
+    front = mount.front_plate() - translate((0,0,-10))(owis_holes(move_to_minus_y=True))
+    back = mount.back_frame() - translate((0,0,-10))(owis_holes(move_to_minus_y=True))
     scad_render_to_file(front + back, "scad/mirror_mount.scad", file_header=header)
     scad_render_to_file(back, "scad/mirror_mount_back.scad", file_header=header)
     scad_render_to_file(front, "scad/mirror_mount_front.scad", file_header=header)
