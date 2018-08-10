@@ -24,7 +24,7 @@ class MirrorMount:
         self.center_size = 30  # length of sides of movable square
         self.center_thick = 2
         self.flexure_thick = 1  # smallest cross-section of flexure
-        self.spring_thick = .3  # smallest thickness of spring
+        self.spring_thick = .4  # smallest thickness of spring
         self.gap = 2  # size of gap(s) between parts
 
         self.screw_diam = 3.5
@@ -79,11 +79,12 @@ class MirrorMount:
             cube((self.center_size, self.center_size, self.center_thick), center=True)
         )
 
-    def front_plate_three_springs(self):
+    def front_plate_three_springs(self, sep_for_print=True):
         center_plate = self.center_plate()
-        center_plate += self.spring_group()
-        center_plate += rotate((0,0,90))(self.spring_group())
-        center_plate += rotate((0,0,-90))(self.spring_group())
+        spring_group = self.spring_group(sep_for_print)
+        center_plate += spring_group
+        center_plate += rotate((0,0,90))(spring_group)
+        center_plate += rotate((0,0,-90))(spring_group)
 
         screw_center_xy = self.center_size/2 - self.gap
         for x,y in (screw_center_xy, -screw_center_xy), (-screw_center_xy, screw_center_xy),\
@@ -94,7 +95,7 @@ class MirrorMount:
 
         return center_plate
 
-    def spring_group(self):
+    def spring_group(self, sep_for_print):
         """leaf spring outside +x +y corner of center plate"""
         sq2 = numpy.sqrt(2)
         strut_length = self.frame_size/sq2-self.gap  # diagonal
@@ -102,35 +103,55 @@ class MirrorMount:
         strut = translate((strut_length/2, 0, -strut_thick/2))(
             cube((strut_length, strut_thick, strut_thick), center=True)
         )  # strut in +x orientation, one end at origin
+        strut_y = (self.gap + strut_thick)/2
+        strut = translate((0, strut_y, 0))(strut) + translate((0, -strut_y, 0))(strut)  # two struts with gap
 
+        # single spring
         _, front_frame_thickness, _ = self.thicknesses()
-        spring_width = (self.frame_size - self.center_size)/2 - self.gap
-        spring_height = front_frame_thickness
-        spring = translate((strut_length-spring_width/2, strut_thick/2, -spring_height/2))(
-            self.single_spring(spring_width, spring_height)
+        spring_extrusion = (self.frame_size - self.center_size)/2 - self.gap
+        spring_height = front_frame_thickness - strut_thick
+        spring_width = 2*spring_height  # should not exceed spring height if printing upright
+        spring = translate((0, strut_thick/2, -strut_thick-spring_height/2))(
+            self.single_spring(spring_extrusion, spring_height, spring_width)
         )
+        springs = spring + mirror((0,1,0))(spring)  # spring pair
 
-        strut += spring
-        strut += mirror((0,1,0))(spring)
+        # add mounting
+        shoulder_thick = self.spring_thick
+        springs += translate((0, 0, - strut_thick/2))(cube((spring_extrusion, 0.9*self.gap, strut_thick), center=True))
+        # shoulder/bottom plate
+        springs += translate((0, 0, - strut_thick-shoulder_thick/2))(cube((spring_extrusion, 2*self.gap, shoulder_thick), center=True))
+        springs += translate((0, 0, - strut_thick - spring_height+shoulder_thick/2))(cube((spring_extrusion, 2*self.gap, shoulder_thick), center=True))
 
-        strut = rotate((0,0,45))(strut)
+        # up to here: springs with cube at origin
+        if sep_for_print:
+            springs = rotate((0, -90, 0))(springs)
+            springs = translate((spring_extrusion+self.gap, 0, spring_extrusion/2-self.center_thick))(springs)
+        springs = translate((strut_length-spring_extrusion/2, 0, 0))(springs)
 
-        return strut
+        group = strut + springs
+        group = rotate((0, 0, 45))(group)
 
-    def single_spring(self, spring_width, spring_height):
+        return group
+
+    def single_spring(self, spring_extrusion, spring_height, spring_width):
         """one-sided spring, centered in z, for connection at y=0, flexing into +y, centered/extruded in x"""
-        xs = numpy.linspace(0, spring_height/2, num=20)
-        ys_front = spring_height/2 - xs
-        ys_back = ys_front - self.spring_thick  # min thickness everywhere
-        ys_back -= xs/spring_height*4*self.spring_thick
-        front_points = list(zip(xs, ys_front))
-        back_points = list(zip(xs, ys_back))
-        back_points.reverse()
-        spring_points = front_points + back_points
-        spring_profile = polygon(spring_points)
-        spring = linear_extrude(height=spring_width)(spring_profile)
+        phis = numpy.linspace(-numpy.pi/2, numpy.pi/2)
+        xs_out = spring_width/2*numpy.cos(phis)
+        ys_out = spring_height/2*numpy.sin(phis)
+
+        xs_in = (spring_width/2-self.spring_thick)*numpy.cos(phis)
+        ys_in = (spring_height/2-self.spring_thick)*numpy.sin(phis)
+
+        points_out = list(zip(xs_out, ys_out))
+        points_in = list(zip(xs_in, ys_in))
+        points_in.reverse()
+        spring_profile = polygon(points_out + points_in)
+
+        spring = linear_extrude(height=spring_extrusion)(spring_profile)
+        spring = rotate((0,0,90))(spring)
         spring = rotate((0,90,0))(spring)
-        spring = translate((-spring_width/2, 0, 0))(spring)  # center in x
+        spring = translate((-spring_extrusion / 2, 0, 0))(spring)  # center in x
         return spring + mirror((0,0,1))(spring)
 
     def back_frame(self):
@@ -178,8 +199,9 @@ if __name__ == "__main__":
 
     mount = MirrorMount()
     front = mount.front_plate_flex_corner() - translate((0, 0, -10))(owis_holes(move_to_minus_y=True))
-    front = mount.front_plate_three_springs()
+    front = mount.front_plate_three_springs(sep_for_print=False)
+    front_print = mount.front_plate_three_springs()
     back = mount.back_frame() - translate((0,0,-10))(owis_holes(move_to_minus_y=True))
     scad_render_to_file(front + back, "scad/mirror_mount.scad", file_header=header)
     scad_render_to_file(back, "scad/mirror_mount_back.scad", file_header=header)
-    scad_render_to_file(front, "scad/mirror_mount_front.scad", file_header=header)
+    scad_render_to_file(front_print, "scad/mirror_mount_front.scad", file_header=header)
