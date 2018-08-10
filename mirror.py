@@ -22,17 +22,18 @@ class MirrorMount:
         self.thickness = 15
         self.frame_size = 40  # length of sides of outer frame (square)
         self.center_size = 30  # length of sides of movable square
-        self.center_thick = 2
+        self.center_thick = 4
         self.flexure_thick = 1  # smallest cross-section of flexure
-        self.spring_thick = .4  # smallest thickness of spring
+        self.spring_thick = .6  # smallest thickness of spring
         self.gap = 2  # size of gap(s) between parts
+        self.front_frame_thickness = 12
 
         self.screw_diam = 3.5
         self.hex_width = 5.5
 
     def thicknesses(self):
         pre_tilt_depth = numpy.arctan(numpy.deg2rad(self.pre_tilt_deg)) * self.center_size * numpy.sqrt(2)  # protrusion of center plate due to pre-tilt
-        front_frame_thickness =  pre_tilt_depth + self.gap
+        front_frame_thickness = self.front_frame_thickness
         back_wall_thickness = self.thickness - front_frame_thickness
         if back_wall_thickness < 2*self.gap:
             print(back_wall_thickness)
@@ -90,8 +91,12 @@ class MirrorMount:
         for x,y in (screw_center_xy, -screw_center_xy), (-screw_center_xy, screw_center_xy),\
                    (screw_center_xy, screw_center_xy), (-screw_center_xy, -screw_center_xy):
             center_plate += translate((x,y,-self.center_thick/2))(
-                cylinder(d=2*self.screw_diam, h=self.center_thick, center=True))
+                cylinder(d=2.5*self.screw_diam, h=self.center_thick, center=True))
             center_plate -= translate((x,y,0))(cylinder(d=self.screw_diam, h=10*self.thickness, center=True))
+            hex_depth=1
+            center_plate -= translate((x, y, hex_depth/2))(
+                hexagon(self.hex_width, 2*hex_depth)
+            )
 
         return center_plate
 
@@ -100,28 +105,29 @@ class MirrorMount:
         sq2 = numpy.sqrt(2)
         strut_length = self.frame_size/sq2-self.gap  # diagonal
         strut_thick = self.center_thick
+        strut_width = self.center_thick
         strut = translate((strut_length/2, 0, -strut_thick/2))(
-            cube((strut_length, strut_thick, strut_thick), center=True)
+            cube((strut_length, strut_width, strut_thick), center=True)
         )  # strut in +x orientation, one end at origin
-        strut_y = (self.gap + strut_thick)/2
+        strut_y = (self.gap + strut_width)/2
         strut = translate((0, strut_y, 0))(strut) + translate((0, -strut_y, 0))(strut)  # two struts with gap
 
         # single spring
         _, front_frame_thickness, _ = self.thicknesses()
         spring_extrusion = (self.frame_size - self.center_size)/2 - self.gap
         spring_height = front_frame_thickness - strut_thick
-        spring_width = 2*spring_height  # should not exceed spring height if printing upright
-        spring = translate((0, strut_thick/2, -strut_thick-spring_height/2))(
+        spring_width = spring_height  # should not exceed spring height if printing upright
+        spring = translate((0, strut_width, -strut_thick-spring_height/2))(
             self.single_spring(spring_extrusion, spring_height, spring_width)
         )
         springs = spring + mirror((0,1,0))(spring)  # spring pair
 
         # add mounting
         shoulder_thick = self.spring_thick
-        springs += translate((0, 0, - strut_thick/2))(cube((spring_extrusion, 0.9*self.gap, strut_thick), center=True))
+        springs += translate((0, 0, - strut_thick/2))(cube((spring_extrusion, 0.95*self.gap, strut_thick), center=True))
         # shoulder/bottom plate
-        springs += translate((0, 0, - strut_thick-shoulder_thick/2))(cube((spring_extrusion, 2*self.gap, shoulder_thick), center=True))
-        springs += translate((0, 0, - strut_thick - spring_height+shoulder_thick/2))(cube((spring_extrusion, 2*self.gap, shoulder_thick), center=True))
+        springs += translate((0, 0, - strut_thick-shoulder_thick/2))(cube((spring_extrusion, 2*strut_width+self.gap, shoulder_thick), center=True))
+        #springs += translate((0, 0, - strut_thick - spring_height+shoulder_thick/2))(cube((spring_extrusion, 2*self.gap, shoulder_thick), center=True))
 
         # up to here: springs with cube at origin
         if sep_for_print:
@@ -136,7 +142,7 @@ class MirrorMount:
 
     def single_spring(self, spring_extrusion, spring_height, spring_width):
         """one-sided spring, centered in z, for connection at y=0, flexing into +y, centered/extruded in x"""
-        phis = numpy.linspace(-numpy.pi/2, numpy.pi/2)
+        phis = numpy.linspace(-.66*numpy.pi, .5*numpy.pi, 50)
         xs_out = spring_width/2*numpy.cos(phis)
         ys_out = spring_height/2*numpy.sin(phis)
 
@@ -152,7 +158,7 @@ class MirrorMount:
         spring = rotate((0,0,90))(spring)
         spring = rotate((0,90,0))(spring)
         spring = translate((-spring_extrusion / 2, 0, 0))(spring)  # center in x
-        return spring + mirror((0,0,1))(spring)
+        return spring
 
     def back_frame(self):
         _, front_frame_thick, back_thick = self.thicknesses()
