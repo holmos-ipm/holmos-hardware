@@ -24,7 +24,7 @@ class MirrorMount:
         self.center_size = 30  # length of sides of movable square
         self.center_thick = 4
         self.flexure_thick = 1  # smallest cross-section of flexure
-        self.spring_thick = .6  # smallest thickness of spring
+        self.spring_thick = 1  # smallest thickness of spring
         self.gap = 2  # size of gap(s) between parts
         self.front_frame_thickness = 12
 
@@ -117,7 +117,7 @@ class MirrorMount:
         spring_extrusion = (self.frame_size - self.center_size)/2 - self.gap
         spring_height = front_frame_thickness - strut_thick
         spring_width = spring_height  # should not exceed spring height if printing upright
-        spring = translate((0, strut_width, -strut_thick-spring_height/2))(
+        spring = translate((0, self.gap, -strut_thick-spring_height/2))(
             self.single_spring(spring_extrusion, spring_height, spring_width)
         )
         springs = spring + mirror((0,1,0))(spring)  # spring pair
@@ -126,7 +126,7 @@ class MirrorMount:
         shoulder_thick = self.spring_thick
         springs += translate((0, 0, - strut_thick/2))(cube((spring_extrusion, 0.95*self.gap, strut_thick), center=True))
         # shoulder/bottom plate
-        springs += translate((0, 0, - strut_thick-shoulder_thick/2))(cube((spring_extrusion, 2*strut_width+self.gap, shoulder_thick), center=True))
+        springs += translate((0, 0, - strut_thick-shoulder_thick/2))(cube((spring_extrusion, 2*self.gap, shoulder_thick), center=True))
         #springs += translate((0, 0, - strut_thick - spring_height+shoulder_thick/2))(cube((spring_extrusion, 2*self.gap, shoulder_thick), center=True))
 
         # up to here: springs with cube at origin
@@ -142,7 +142,7 @@ class MirrorMount:
 
     def single_spring(self, spring_extrusion, spring_height, spring_width):
         """one-sided spring, centered in z, for connection at y=0, flexing into +y, centered/extruded in x"""
-        phis = numpy.linspace(-.66*numpy.pi, .5*numpy.pi, 50)
+        phis = numpy.linspace(-.6*numpy.pi, .5*numpy.pi, 50)
         xs_out = spring_width/2*numpy.cos(phis)
         ys_out = spring_height/2*numpy.sin(phis)
 
