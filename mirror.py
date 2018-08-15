@@ -18,15 +18,17 @@ class MirrorMount:
     """
 
     def __init__(self):
-        self.pre_tilt_deg = 5
+        self.pre_tilt_deg = 3
         self.thickness = 15
+        self.front_frame_thickness = 10
+        self.center_thick = 4
         self.frame_size = 40  # length of sides of outer frame (square)
         self.center_size = 30  # length of sides of movable square
-        self.center_thick = 4
         self.flexure_thick = 1  # smallest cross-section of flexure
-        self.spring_thick = 1  # smallest thickness of spring
+        self.spring_thick = .5  # smallest thickness of spring
         self.gap = 2  # size of gap(s) between parts
-        self.front_frame_thickness = 12
+
+        self.join_thick = 2  # cross-section size of joints stuck into holes.
 
         self.screw_diam = 3.5
         self.hex_width = 5.5
@@ -82,7 +84,7 @@ class MirrorMount:
 
     def front_plate_three_springs(self, sep_for_print=True):
         center_plate = self.center_plate()
-        spring_group = self.spring_group(sep_for_print)
+        spring_group = self.spring_group_bars(sep_for_print)
         center_plate += spring_group
         center_plate += rotate((0,0,90))(spring_group)
         center_plate += rotate((0,0,-90))(spring_group)
@@ -92,16 +94,62 @@ class MirrorMount:
                    (screw_center_xy, screw_center_xy), (-screw_center_xy, -screw_center_xy):
             center_plate += translate((x,y,-self.center_thick/2))(
                 cylinder(d=2.5*self.screw_diam, h=self.center_thick, center=True))
+            center_plate -= translate((x,y,0))(sphere(d=1.3*self.screw_diam))
+            """
             center_plate -= translate((x,y,0))(cylinder(d=self.screw_diam, h=10*self.thickness, center=True))
             hex_depth=1
             center_plate -= translate((x, y, hex_depth/2))(
                 hexagon(self.hex_width, 2*hex_depth)
-            )
+            )"""
 
         return center_plate
 
-    def spring_group(self, sep_for_print):
-        """leaf spring outside +x +y corner of center plate"""
+    def spring_group_bars(self, sep_for_print):
+        """parallel bars leaf spring at +x+y corner"""
+        plate_size = 3*self.join_thick
+        plate_thick = self.center_thick
+        plate = cube((plate_size, plate_size, plate_thick), center=True)
+        plate_center_xy = self.frame_size/2 - plate_size/2
+
+        # plate with holes
+        plate = translate((plate_center_xy, plate_center_xy, -plate_thick/2))(plate)
+        plate -= translate((plate_center_xy, plate_center_xy, 0))(cube((self.join_thick, self.join_thick, 5*plate_thick), center=True))
+
+        # spring assembly with joint centered at x=y=0, z final.
+        spring_height = self.front_frame_thickness - self.center_thick
+        spring_length = self.frame_size/2
+        shoulder = cube((plate_size, self.join_thick, spring_height/3), center=True)
+        top_shoulder = translate((0, 0, -spring_height/6 - self.center_thick))(shoulder)
+        bottom_shoulder = translate((0, 0, +spring_height/6 - self.front_frame_thickness))(shoulder)
+
+        spring = cube((spring_length, self.join_thick, self.spring_thick), center=True)
+        spring = translate((-spring_length/2,0,0))(spring)
+        top_spring = translate((0,0,-self.center_thick-spring_height/3))(spring)
+        bottom_spring = translate((0,0,-self.center_thick-2*spring_height/3))(spring)
+
+        spring_connector = cube((self.join_thick, self.join_thick, spring_height/3), center=True)
+        spring_connector = translate((-spring_length + self.join_thick/2,0,-self.center_thick-spring_height/2))(spring_connector)
+
+        # pins to fit in holes
+        top_pin = cube((self.join_thick, self.join_thick, self.center_thick), center=True)
+        top_pin = translate((0,0,-self.center_thick/2))(top_pin)
+        bottom_thick = self.thickness - self.front_frame_thickness
+        bottom_pin = cube((self.join_thick, self.join_thick, bottom_thick), center=True)
+        bottom_pin = translate((0,0,-bottom_thick/2 - self.front_frame_thickness))(bottom_pin)
+
+        spring_assembly = top_shoulder + bottom_shoulder + top_spring + bottom_spring + spring_connector
+        spring_assembly += top_pin + bottom_pin
+
+        if sep_for_print:
+            spring_assembly = rotate((90,0,0))(spring_assembly)
+            spring_assembly = translate((0, self.center_thick, -self.center_thick+self.join_thick/2))(spring_assembly)  # flush with bottom of center plate
+
+        spring_assembly = translate((plate_center_xy, plate_center_xy, 0))(spring_assembly)
+
+        return plate + spring_assembly
+
+    def spring_group_c(self, sep_for_print):
+        """c-shaped leaf spring outside +x +y corner of center plate"""
         sq2 = numpy.sqrt(2)
         strut_length = self.frame_size/sq2-self.gap  # diagonal
         strut_thick = self.center_thick
@@ -118,7 +166,7 @@ class MirrorMount:
         spring_height = front_frame_thickness - strut_thick
         spring_width = spring_height  # should not exceed spring height if printing upright
         spring = translate((0, self.gap, -strut_thick-spring_height/2))(
-            self.single_spring(spring_extrusion, spring_height, spring_width)
+            self.single_spring_c(spring_extrusion, spring_height, spring_width)
         )
         springs = spring + mirror((0,1,0))(spring)  # spring pair
 
@@ -140,7 +188,7 @@ class MirrorMount:
 
         return group
 
-    def single_spring(self, spring_extrusion, spring_height, spring_width):
+    def single_spring_c(self, spring_extrusion, spring_height, spring_width):
         """one-sided spring, centered in z, for connection at y=0, flexing into +y, centered/extruded in x"""
         phis = numpy.linspace(-.6*numpy.pi, .5*numpy.pi, 50)
         xs_out = spring_width/2*numpy.cos(phis)
@@ -176,6 +224,11 @@ class MirrorMount:
                 hexagon(self.hex_width, 2*hex_depth)
             )
 
+        join_center_xy = self.frame_size/2 - 1.5*self.join_thick
+        for x,y in (join_center_xy, -join_center_xy), (-join_center_xy, join_center_xy),\
+                   (join_center_xy, join_center_xy), (-join_center_xy, -join_center_xy):
+            back_frame -= translate((x,y,0))(cube((self.join_thick, self.join_thick, 10*self.thickness), center=True))
+
         return back_frame
 
 
@@ -204,10 +257,10 @@ if __name__ == "__main__":
         os.mkdir("scad")
 
     mount = MirrorMount()
-    front = mount.front_plate_flex_corner() - translate((0, 0, -10))(owis_holes(move_to_minus_y=True))
+    front = mount.front_plate_flex_corner() - translate((0, 0, -12))(owis_holes(move_to_minus_y=True))
     front = mount.front_plate_three_springs(sep_for_print=False)
     front_print = mount.front_plate_three_springs()
-    back = mount.back_frame() - translate((0,0,-10))(owis_holes(move_to_minus_y=True))
+    back = mount.back_frame() - translate((0,0,-12))(owis_holes(move_to_minus_y=True))
     scad_render_to_file(front + back, "scad/mirror_mount.scad", file_header=header)
     scad_render_to_file(back, "scad/mirror_mount_back.scad", file_header=header)
     scad_render_to_file(front_print, "scad/mirror_mount_front.scad", file_header=header)
