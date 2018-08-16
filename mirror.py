@@ -131,10 +131,11 @@ class MirrorMount:
         spring_connector = translate((-spring_length + self.join_thick/2,0,-self.center_thick-spring_height/2))(spring_connector)
 
         # pins to fit in holes
-        top_pin = cube((self.join_thick, self.join_thick, self.center_thick), center=True)
+        top_pin = tapered_pin((self.join_thick, self.join_thick, self.center_thick), xy_taper=(.3, .1))
         top_pin = translate((0,0,-self.center_thick/2))(top_pin)
         bottom_thick = self.thickness - self.front_frame_thickness
-        bottom_pin = cube((self.join_thick, self.join_thick, bottom_thick), center=True)
+        bottom_pin = tapered_pin((self.join_thick, self.join_thick, bottom_thick), xy_taper=(.3, .1))
+        bottom_pin = rotate((180,0,0))(bottom_pin)
         bottom_pin = translate((0,0,-bottom_thick/2 - self.front_frame_thickness))(bottom_pin)
 
         spring_assembly = top_shoulder + bottom_shoulder + top_spring + bottom_spring + spring_connector
@@ -241,6 +242,35 @@ def hexagon(diam, height):
     for i in range(n):
         boxes.append(rotate((0, 0, 360*i/n))(single_box))
     return union()(boxes)
+
+
+def tapered_pin(xyz_size, xy_taper):
+    """pin inside given by xyz_size, tapering in top half by xy_taper in x and y directions toward top (+z). centered."""
+    x,y,z = xyz_size
+    xt, yt = xy_taper
+
+    bottom = cube((x,y,z/2), center=True)
+    bottom = translate((0,0,-z/4))(bottom)
+
+    rx, ry = x/2, y/2
+    points = [[rx-xt, ry-yt, z/2],  # top points, clockwise
+              [rx-xt, -ry+yt, z/2],
+              [-rx+xt, -ry+yt, z/2],
+              [-rx+xt, ry-yt, z/2],
+              [rx, ry, 0],  # bottom points, clockwise
+              [rx, -ry, 0],
+              [-rx, -ry, 0],
+              [-rx, ry, 0]]
+    faces = [[0,1,2,3], # top
+             [7,6,5,4], # bottom
+             [1,0,4,5],
+             [2,1,5,6],
+             [3,2,6,7],
+             [0,3,7,4]
+    ]
+
+    top = polyhedron(points=points, faces=faces)
+    return bottom + top
 
 
 if __name__ == "__main__":
