@@ -219,7 +219,7 @@ class MirrorMount:
         screw_center_xy = self.center_size/2 - self.gap
         for x,y in (screw_center_xy, -screw_center_xy), (-screw_center_xy, screw_center_xy),\
                    (screw_center_xy, screw_center_xy), (-screw_center_xy, -screw_center_xy):
-            back_frame -= translate((x,y,0))(cylinder(d=self.screw_diam, h=10*self.thickness, center=True))
+            back_frame -= translate((x,y,0))(cylinder(d=1.1*self.screw_diam, h=10*self.thickness, center=True))
             hex_depth = self.gap
             back_frame -= translate((x, y, -front_frame_thick-hex_depth/2))(
                 hexagon(self.hex_width, 2*hex_depth)
