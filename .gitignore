@@ -1,3 +1,4 @@
 .idea
 *.scad
 *.stl
+*__pycache__
