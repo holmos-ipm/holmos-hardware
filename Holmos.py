@@ -3,20 +3,23 @@
 from solid.utils import *  # pip install Solidpython
 import numpy
 
+from helpers import cyl_arc
+
 
 def owis_block():
     plate = cube([40, 40, 10], True)
 
-    plate -= translate([0, -20, 0])(
-        rotate([-90, 0, 0])(
-            owis_holes()
-        )
-    )
+    plate -= owis_holes(True)
 
     return plate
 
 
 def owis_holes(move_to_minus_y=False):
+    """
+    Pair of holes for Owis 40, centered at x=y=0, extending upwards from z=0
+    :param move_to_minus_y: Move holes to z=-20, i.e. for optical axis at z=0
+    :return:
+    """
     hole = owis23hole()
     owis_holes = translate([-10, 0, 0])(hole) + translate([10, 0, 0])(hole)  # z=0 is outside plane
 
@@ -30,7 +33,7 @@ def owis_holes(move_to_minus_y=False):
 
 
 def owis23hole():
-    "hole from below into z=0 plane"
+    "hole from below into z=0 plane, for M2.3 screws"
     hole = cylinder(1, h=10, center=True)
     hole += translate([0, 0, -5])(
         cylinder(r1=2, r2=1, h=2, center=True)
@@ -64,13 +67,17 @@ def kosmos_objective():
     return plate
 
 
-def kosmos_objective_open():
+def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30):
+    """
+    mount for cylinder centered on optical axis (z).
+    defaults: mount for Kosmos objective
+    :param inner_diam: usually diameter of thing to be mounted
+    :param ring_thick: thickness of ring determines stiffness
+    :param opening_angle: ring is opened from -angle to +angle
+    :return: Scad object
+    """
     base_thick = 5
-    objective_diam = 17.9
-    ring_thick = 3
-    opening_diam = 15
     connector_w = 3
-
     base_plate = translate([0, -20 + base_thick / 2, 0])(
         rotate([90, 0, 0])(
             rounded_plate([30, 10, base_thick], 4)
@@ -78,12 +85,12 @@ def kosmos_objective_open():
     )
     base_plate -= hole()(owis_holes(True))
 
-    ring = cylinder(d=objective_diam + 2 * ring_thick, h=10, center=True)
-    ring -= cylinder(d=objective_diam, h=20, center=True)
-    ring -= translate([objective_diam / 2 + ring_thick, 0, 0])(cylinder(d=opening_diam, h=20, center=True))
+    outer_diam = inner_diam+2 * ring_thick
+    ring = cyl_arc(r=outer_diam/2, h=10, a0=opening_angle, a1=-opening_angle)
+    ring -= cylinder(d=inner_diam, h=20, center=True)
 
-    connector_h = (40 - objective_diam) / 2
-    connector_yc = objective_diam / 2 + connector_h / 2
+    connector_h = (40 - inner_diam) / 2
+    connector_yc = inner_diam / 2 + connector_h / 2
     connector = translate([5, -connector_yc, 0])(cube([connector_w, connector_h, 10], center=True))
     connector += translate([-5, -connector_yc, 0])(cube([connector_w, connector_h, 10], center=True))
 
@@ -238,6 +245,7 @@ def rounded_plate(xyz, r):
 
 if __name__ == "__main__":
     import os
+
     _fine = True
 
     if _fine:
@@ -251,7 +259,7 @@ if __name__ == "__main__":
 
     scad_render_to_file(owis_slide_holder(False), "scad/Owis-slide-holder.scad", file_header=header)
 
-    scad_render_to_file(kosmos_objective_open(), "scad/Kosmos in Owis - offen.scad", file_header=header)
+    scad_render_to_file(round_mount_light(), "scad/Kosmos in Owis - offen.scad", file_header=header)
 
     scad_render_to_file(kosmos_objective(), "scad/Kosmos-Objektiv in Owis.scad", file_header=header)
 

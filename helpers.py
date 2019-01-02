@@ -1,0 +1,42 @@
+# -*- coding: utf-8 -*-
+"""
+Created on 02.01.2019
+
+@author: beckmann
+"""
+
+from solid.utils import *  # pip install Solidpython
+
+
+def cyl_arc(r, h, a0, a1):
+    solid_arc_length = (a1-a0) % 360  # mod360 e.g. for -10..10 -> arc is
+    if solid_arc_length < 180:
+        return cyl_arc_lt_180(r, h, a0, a1)
+    else:
+        return cylinder(r, h, center=True) - cyl_arc_lt_180(2*r, 2*h, a1, a0)  # slightly inefficient: subracting part could be simpler.
+
+
+def cyl_arc_lt_180(r, h, a0, a1):
+    # centered arc section of cylinder, for angles up to 180deg
+    positive_y_plane = translate([0, 2 * r, 0])(cube([4 * r, 4 * r, 2 * h], center=True))
+    result = cylinder(r, h, center=True)
+    result *= positive_y_plane  # keep 0...180
+    result = rotate([0, 0, -(a1 - a0)])(result)
+    result -= positive_y_plane  # keep 0...a1-a0
+    return rotate([0, 0, a1])(result)
+
+
+if __name__ == "__main__":
+    import os
+
+    if not os.path.exists("scad"):
+        os.mkdir("scad")
+    if not os.path.exists("scad/tests"):
+        os.mkdir("scad/tests")
+
+    tests = {"cyl_arc - thin pie slice": cyl_arc(50, 10, -30, -10),
+             "cyl_arc - pacman": cyl_arc(50, 10, 30, -30)}
+
+    for label in tests:
+        filename = os.path.join("scad", "tests", label + ".scad")
+        scad_render_to_file(tests[label], filename)
