@@ -293,5 +293,5 @@ if __name__ == "__main__":
 
     scad_render_to_file(rpi_cam_owis(), "scad/RPi-Cam in Owis.scad", file_header=header)
 
-    for d in (10, 15, 20):
+    for d in (9, 10, 12, 16, 20):
         scad_render_to_file(round_mount_light(d, opening_angle=None), "scad/round_mount_d{:.1f}.scad".format(d), file_header=header)
