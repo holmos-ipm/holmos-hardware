@@ -3,7 +3,7 @@
 from solid.utils import *  # pip install Solidpython
 import numpy
 
-from helpers import cyl_arc
+from helpers import cyl_arc, hexagon
 
 
 def owis_block():
@@ -69,7 +69,7 @@ def kosmos_objective():
 
 def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30):
     """
-    mount for cylinder centered on optical axis (z).
+    mount for cylinder centered on optical axis (z). If opening_angle is None, clamping tabs are added.
     defaults: mount for Kosmos objective
     :param inner_diam: usually diameter of thing to be mounted
     :param ring_thick: thickness of ring determines stiffness
@@ -78,6 +78,14 @@ def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30):
     """
     base_thick = 5
     connector_w = 3
+    z_thick = 10 # thickness/z-length of entire assembly
+
+    do_clamp = False
+    if opening_angle is None:
+        do_clamp = True
+        opening_angle = numpy.arcsin(ring_thick/inner_diam)
+        opening_angle = numpy.rad2deg(opening_angle)
+
     base_plate = translate([0, -20 + base_thick / 2, 0])(
         rotate([90, 0, 0])(
             rounded_plate([30, 10, base_thick], 4)
@@ -86,13 +94,33 @@ def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30):
     base_plate -= hole()(owis_holes(True))
 
     outer_diam = inner_diam+2 * ring_thick
-    ring = cyl_arc(r=outer_diam/2, h=10, a0=opening_angle, a1=-opening_angle)
-    ring -= cylinder(d=inner_diam, h=20, center=True)
+    ring = cyl_arc(r=outer_diam/2, h=z_thick, a0=opening_angle, a1=-opening_angle)
+    ring -= cylinder(d=inner_diam, h=2*z_thick, center=True)
+
+    if do_clamp:  # clamps with holes extending towards +x
+        hex_diam = 5.5  # M3 nut
+        clamp_extension = hex_diam + 1
+        hole_diam = 3.5
+        clamp_length = ring_thick+clamp_extension
+        single_clamp = rounded_plate((clamp_length, z_thick, ring_thick), True)
+        through_nut_hole = cylinder(d=hole_diam, h=2*ring_thick, center=True)
+        through_nut_hole += translate((0,0, ring_thick/2))(hexagon(hex_diam, ring_thick/3))
+        single_clamp -= translate([ring_thick/2, 0, 0])(through_nut_hole)
+        ring += translate([inner_diam/2 + clamp_length/2, ring_thick, 0])(rotate([-90, 0, 0])(single_clamp))
+        ring += translate([inner_diam/2 + clamp_length/2, -ring_thick, 0])(rotate([90, 0, 0])(single_clamp))
 
     connector_h = (40 - inner_diam) / 2
     connector_yc = inner_diam / 2 + connector_h / 2
-    connector = translate([5, -connector_yc, 0])(cube([connector_w, connector_h, 10], center=True))
-    connector += translate([-5, -connector_yc, 0])(cube([connector_w, connector_h, 10], center=True))
+    connector = translate([5, -connector_yc, 0])(cube([connector_w, connector_h, z_thick], center=True))
+    connector += translate([-5, -connector_yc, 0])(cube([connector_w, connector_h, z_thick], center=True))
+
+    label = "d = {:.1f}".format(inner_diam)
+    info_text = linear_extrude(height=.5, center=True)(
+                    text(label, valign="center", halign="center", size=3., segments=1,
+                         font="Liberation Mono:style=Bold")
+                )
+
+    base_plate += translate((0, -(20-base_thick/2), z_thick/2))(info_text)
 
     return base_plate + ring + connector
 
@@ -264,3 +292,6 @@ if __name__ == "__main__":
     scad_render_to_file(kosmos_objective(), "scad/Kosmos-Objektiv in Owis.scad", file_header=header)
 
     scad_render_to_file(rpi_cam_owis(), "scad/RPi-Cam in Owis.scad", file_header=header)
+
+    for d in (10, 15, 20):
+        scad_render_to_file(round_mount_light(d, opening_angle=None), "scad/round_mount_d{:.1f}.scad".format(d), file_header=header)

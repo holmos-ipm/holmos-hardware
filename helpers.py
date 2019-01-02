@@ -4,6 +4,8 @@ Created on 02.01.2019
 
 @author: beckmann
 """
+import numpy
+from solid import translate, cube, rotate, union
 
 from solid.utils import *  # pip install Solidpython
 
@@ -40,3 +42,14 @@ if __name__ == "__main__":
     for label in tests:
         filename = os.path.join("scad", "tests", label + ".scad")
         scad_render_to_file(tests[label], filename)
+
+
+def hexagon(diam, height):
+    """diam: smallest diameter, distance between parallel sides"""
+    n=6
+    facewidth = diam*numpy.tan(numpy.pi/n)
+    single_box = translate((-diam/4, 0, 0))(cube((diam/2, facewidth, height), center=True))
+    boxes = []
+    for i in range(n):
+        boxes.append(rotate((0, 0, 360*i/n))(single_box))
+    return union()(boxes)

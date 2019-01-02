@@ -7,7 +7,8 @@ import warnings
 from solid.utils import *  # pip install Solidpython
 import numpy
 
-from Holmos import owis_block, owis_holes
+from Holmos import owis_holes
+from helpers import hexagon
 
 
 class MirrorMount:
@@ -222,7 +223,7 @@ class MirrorMount:
             back_frame -= translate((x,y,0))(cylinder(d=1.1*self.screw_diam, h=10*self.thickness, center=True))
             hex_depth = self.gap
             back_frame -= translate((x, y, -front_frame_thick-hex_depth/2))(
-                hexagon(self.hex_width, 2*hex_depth)
+                hexagon(self.hex_width, 2 * hex_depth)
             )
 
         join_center_xy = self.frame_size/2 - 1.5*self.join_thick
@@ -231,17 +232,6 @@ class MirrorMount:
             back_frame -= translate((x,y,0))(cube((self.join_thick, self.join_thick, 10*self.thickness), center=True))
 
         return back_frame
-
-
-def hexagon(diam, height):
-    """diam: smallest diameter, distance between parallel sides"""
-    n=6
-    facewidth = diam*numpy.tan(numpy.pi/n)
-    single_box = translate((-diam/4, 0, 0))(cube((diam/2, facewidth, height), center=True))
-    boxes = []
-    for i in range(n):
-        boxes.append(rotate((0, 0, 360*i/n))(single_box))
-    return union()(boxes)
 
 
 def tapered_pin(xyz_size, xy_taper):
