@@ -273,6 +273,8 @@ def rounded_plate(xyz, r):
 
 if __name__ == "__main__":
     import os
+    import subprocess
+    import time
 
     _fine = True
 
@@ -285,6 +287,9 @@ if __name__ == "__main__":
     if not os.path.exists("scad"):
         os.mkdir("scad")
 
+    if not os.path.exists("stl"):
+        os.mkdir("stl")
+
     scad_render_to_file(owis_slide_holder(False), "scad/Owis-slide-holder.scad", file_header=header)
 
     scad_render_to_file(round_mount_light(), "scad/Kosmos in Owis - offen.scad", file_header=header)
@@ -295,3 +300,33 @@ if __name__ == "__main__":
 
     for d in (9, 10, 12, 16, 20):
         scad_render_to_file(round_mount_light(d, opening_angle=None), "scad/round_mount_d{:.1f}.scad".format(d), file_header=header)
+
+    files = filter(lambda f: ".scad" in f, os.listdir("scad"))
+    processes = []
+    IDLE_PRIORITY_CLASS = 0x00000040
+    for filename in list(files):
+        filepath = os.path.join("scad", filename)
+        outfile = filename.replace(".scad", ".stl")
+        outfile = os.path.join("stl", outfile)
+        print("rendering:", outfile)
+        if os.path.isfile(outfile):
+            os.remove(outfile)
+            print(outfile, "deleted")
+        cmdline = "C:\Program Files\OpenSCAD\openscad.exe -o \"{}\" \"{}\"".format(outfile, filepath)
+        print(cmdline)
+        proc = subprocess.Popen(cmdline, creationflags=IDLE_PRIORITY_CLASS)
+        processes.append(proc)
+
+    while True:
+        num_running = 0
+        for proc in processes:
+            if proc.poll() is None:
+                num_running += 1
+        if num_running == 0:
+            break
+        print("waiting for {}/{} processes".format(num_running, len(processes)))
+        time.sleep(1)
+
+    print(processes[0].stderr)
+
+
