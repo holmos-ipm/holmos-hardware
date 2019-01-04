@@ -270,6 +270,14 @@ def rounded_plate(xyz, r):
 
     return plate
 
+def objective_mount():
+    '''mount for microscope objective'''
+    
+    mount = rounded_plate([40,40,10], r=5)
+    mount -= owis_holes(True)
+    mount -= cylinder(d=20, center=True, h=11)
+    
+    return mount
 
 if __name__ == "__main__":
     import os
@@ -277,6 +285,7 @@ if __name__ == "__main__":
     import time
 
     _fine = True
+    render_STL = False
 
     if _fine:
         header = "$fa = 5;"  # minimum face angle
@@ -297,36 +306,40 @@ if __name__ == "__main__":
     scad_render_to_file(kosmos_objective(), "scad/Kosmos-Objektiv in Owis.scad", file_header=header)
 
     scad_render_to_file(rpi_cam_owis(), "scad/RPi-Cam in Owis.scad", file_header=header)
+    
+    scad_render_to_file(objective_mount(), "scad/Objective_Mount.scad", file_header=header)
 
-    for d in (9, 10, 12, 16, 20):
-        scad_render_to_file(round_mount_light(d, opening_angle=None), "scad/round_mount_d{:.1f}.scad".format(d), file_header=header)
-
-    files = filter(lambda f: ".scad" in f, os.listdir("scad"))
-    processes = []
-    IDLE_PRIORITY_CLASS = 0x00000040
-    for filename in list(files):
-        filepath = os.path.join("scad", filename)
-        outfile = filename.replace(".scad", ".stl")
-        outfile = os.path.join("stl", outfile)
-        print("rendering:", outfile)
-        if os.path.isfile(outfile):
-            os.remove(outfile)
-            print(outfile, "deleted")
-        cmdline = "C:\Program Files\OpenSCAD\openscad.exe -o \"{}\" \"{}\"".format(outfile, filepath)
-        print(cmdline)
-        proc = subprocess.Popen(cmdline, creationflags=IDLE_PRIORITY_CLASS)
-        processes.append(proc)
-
-    while True:
-        num_running = 0
-        for proc in processes:
-            if proc.poll() is None:
-                num_running += 1
-        if num_running == 0:
-            break
-        print("waiting for {}/{} processes".format(num_running, len(processes)))
-        time.sleep(1)
-
-    print(processes[0].stderr)
+    if render_STL : 
+    
+        for d in (9, 10, 12, 16, 20):
+            scad_render_to_file(round_mount_light(d, opening_angle=None), "scad/round_mount_d{:.1f}.scad".format(d), file_header=header)
+    
+        files = filter(lambda f: ".scad" in f, os.listdir("scad"))
+        processes = []
+        IDLE_PRIORITY_CLASS = 0x00000040
+        for filename in list(files):
+            filepath = os.path.join("scad", filename)
+            outfile = filename.replace(".scad", ".stl")
+            outfile = os.path.join("stl", outfile)
+            print("rendering:", outfile)
+            if os.path.isfile(outfile):
+                os.remove(outfile)
+                print(outfile, "deleted")
+            cmdline = "C:\openscad\openscad.exe -o \"{}\" \"{}\"".format(outfile, filepath)
+            print(cmdline)
+            proc = subprocess.Popen(cmdline, creationflags=IDLE_PRIORITY_CLASS)
+            processes.append(proc)
+    
+        while True:
+            num_running = 0
+            for proc in processes:
+                if proc.poll() is None:
+                    num_running += 1
+            if num_running == 0:
+                break
+            print("waiting for {}/{} processes".format(num_running, len(processes)))
+            time.sleep(1)
+    
+        print(processes[0].stderr)
 
 
