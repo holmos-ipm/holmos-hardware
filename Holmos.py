@@ -67,18 +67,20 @@ def kosmos_objective():
     return plate
 
 
-def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30):
+def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inner_diam=None):
     """
     mount for cylinder centered on optical axis (z). If opening_angle is None, clamping tabs are added.
     defaults: mount for Kosmos objective
     :param inner_diam: usually diameter of thing to be mounted
     :param ring_thick: thickness of ring determines stiffness
     :param opening_angle: ring is opened from -angle to +angle
+    :param stop_inner_diam: if not None, a smaller second cylinder acts as a stop, i.e. for a lens.
     :return: Scad object
     """
     base_thick = 5
     connector_w = 3
     z_thick = 10 # thickness/z-length of entire assembly
+    z_think_inner = 2
 
     do_clamp = False
     if opening_angle is None:
@@ -95,7 +97,12 @@ def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30):
 
     outer_diam = inner_diam+2 * ring_thick
     ring = cyl_arc(r=outer_diam/2, h=z_thick, a0=opening_angle, a1=-opening_angle)
-    ring -= cylinder(d=inner_diam, h=2*z_thick, center=True)
+    if inner_diam is None:
+        ring -= cylinder(d=inner_diam, h=2*z_thick, center=True)
+    else:
+        ring -= cylinder(d=stop_inner_diam, h=2*z_thick, center=True)
+        ring -= translate((0,0,z_think_inner))(cylinder(d=inner_diam, h=z_thick, center=True))
+
 
     if do_clamp:  # clamps with holes extending towards +x
         hex_diam = 5.5  # M3 nut
@@ -309,11 +316,10 @@ if __name__ == "__main__":
     
     scad_render_to_file(objective_mount(), "scad/Objective_Mount.scad", file_header=header)
 
-    if render_STL : 
-    
-        for d in (9, 10, 12, 16, 20):
-            scad_render_to_file(round_mount_light(d, opening_angle=None), "scad/round_mount_d{:.1f}.scad".format(d), file_header=header)
-    
+    for d in (9, 10, 12, 16, 20):
+        scad_render_to_file(round_mount_light(d, opening_angle=None), "scad/round_mount_d{:.1f}.scad".format(d), file_header=header)
+
+    if render_STL:
         files = filter(lambda f: ".scad" in f, os.listdir("scad"))
         processes = []
         IDLE_PRIORITY_CLASS = 0x00000040
