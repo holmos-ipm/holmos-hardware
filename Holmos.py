@@ -33,38 +33,12 @@ def owis_holes(move_to_minus_y=False):
 
 
 def owis23hole():
-    "hole from below into z=0 plane, for M2.3 screws"
+    """hole from below into z=0 plane, for M2.3 screws"""
     hole = cylinder(1, h=10, center=True)
     hole += translate([0, 0, -5])(
         cylinder(r1=2, r2=1, h=2, center=True)
     )
     return translate([0, 0, 5])(hole)
-
-
-def kosmos_objective():
-    plate = owis_block()
-
-    # hole for clamping; slit plane is at z=0
-    clamp_hole_4 = cylinder(d=3.3, h=30, center=True)  # self-cutting thread
-    clamp_hole_4 += translate([0, 0, 10])(cylinder(d=4.5, h=20, center=True))  # through hole
-    clamp_hole_4 += translate([0, 0, 20 - 2])(cylinder(d=7.5, h=4.1, center=True))  # head
-
-    plate -= cylinder(d=17.9, h=20, center=True)
-
-    plate -= translate([0, 20, 0])(cube([1, 40, 40], center=True))
-
-    plate -= translate([0, 15, 0])(rotate([0, 90, 0])(clamp_hole_4))
-
-    # Save weight:
-    plate -= translate([-4, -15, 0])(cylinder(d=4, h=20, center=True))
-    plate -= translate([4, -15, 0])(cylinder(d=4, h=20, center=True))
-    plate -= translate([0, -15, 0])(cube([8, 4, 20], center=True))
-    plate -= translate([0, -20, 0])(cube([12., 10, 20], center=True))
-
-    plate -= translate([-20, 0, 0])(cube([10, 60, 20], center=True))
-    plate -= translate([20, 0, 0])(cube([10, 60, 20], center=True))
-
-    return plate
 
 
 def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inner_diam=None):
@@ -102,7 +76,6 @@ def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inne
     else:
         ring -= cylinder(d=stop_inner_diam, h=2*z_thick, center=True)
         ring -= translate((0,0,z_think_inner))(cylinder(d=inner_diam, h=z_thick, center=True))
-
 
     if do_clamp:  # clamps with holes extending towards +x
         hex_diam = 5.5  # M3 nut
@@ -277,14 +250,16 @@ def rounded_plate(xyz, r):
 
     return plate
 
+
 def objective_mount():
-    '''mount for microscope objective'''
+    """mount for microscope objective"""
     
-    mount = rounded_plate([40,40,10], r=5)
+    mount = rounded_plate([40, 40, 10], r=5)
     mount -= owis_holes(True)
     mount -= cylinder(d=20, center=True, h=11)
     
     return mount
+
 
 if __name__ == "__main__":
     import os
@@ -309,8 +284,6 @@ if __name__ == "__main__":
     scad_render_to_file(owis_slide_holder(False), "scad/Owis-slide-holder.scad", file_header=header)
 
     scad_render_to_file(round_mount_light(), "scad/Kosmos in Owis - offen.scad", file_header=header)
-
-    scad_render_to_file(kosmos_objective(), "scad/Kosmos-Objektiv in Owis.scad", file_header=header)
 
     scad_render_to_file(rpi_cam_owis(), "scad/RPi-Cam in Owis.scad", file_header=header)
     
