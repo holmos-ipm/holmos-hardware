@@ -269,6 +269,52 @@ def base_plate():
     
     return plate
 
+def stabilizer_plate():
+    """stabilizer plate for cheap holmos setup"""
+    
+    """size"""
+    w = 40
+    l = 65
+    h = 10
+    
+    plate = rounded_plate([w,l,h], r=6)
+    plate -= translate([w/4, l/3, 0])(rounded_plate([w,l,h+10], r=6))
+    
+    """actual cage system"""
+    c_dx = 30
+    c_dy = 60
+    c_r  = 6
+        
+    plate += translate([-c_dx/2, -c_dy/2, h/2])(cylinder(d=12, center=True, h=30))
+    plate -= translate([-c_dx/2, -c_dy/2, h/2])(cylinder(d=c_r, center=True, h=50))
+    
+    plate += translate([c_dx/2, -c_dy/2, h/2])(cylinder(d=12, center=True, h=30))
+    plate -= translate([c_dx/2, -c_dy/2, h/2])(cylinder(d=c_r, center=True, h=50))
+    
+    plate += translate([-c_dx/2, c_dy/2-15, h/2])(cylinder(d=12, center=True, h=30))
+    plate -= translate([-c_dx/2, c_dy/2-15, h/2])(cylinder(d=c_r, center=True, h=50))
+    
+    c_r  = 6.1
+        
+    plate += translate([-c_dx/2, -c_dy/2+15, h/2])(cylinder(d=12, center=True, h=30))
+    plate -= translate([-c_dx/2, -c_dy/2+15, h/2])(cylinder(d=c_r, center=True, h=50))
+    
+    plate += translate([c_dx/2, -c_dy/2+15, h/2])(cylinder(d=12, center=True, h=30))
+    plate -= translate([c_dx/2, -c_dy/2+15, h/2])(cylinder(d=c_r, center=True, h=50))
+    
+    plate += translate([-c_dx/2, c_dy/2, h/2])(cylinder(d=12, center=True, h=30))
+    plate -= translate([-c_dx/2, c_dy/2, h/2])(cylinder(d=c_r, center=True, h=50))
+    
+    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2, 15])(owis23hole()))
+    plate -= rotate([0,-90,0])(translate([c_dx/2, -c_dy/2, 15])(owis23hole()))
+    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2-15, 15])(owis23hole()))
+    
+    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2+15, 15])(owis23hole()))
+    plate -= rotate([0,-90,0])(translate([c_dx/2, -c_dy/2+15, 15])(owis23hole()))
+    plate -= rotate([0,90,0])(translate([-c_dx/2, c_dy/2, 15])(owis23hole()))
+    
+    return plate
+
 if __name__ == "__main__":
     import os
     import subprocess
@@ -298,6 +344,8 @@ if __name__ == "__main__":
     scad_render_to_file(objective_mount(), "scad/Objective_Mount.scad", file_header=header)
     
     scad_render_to_file(base_plate(), "scad/Base_Plate.scad", file_header=header)
+    
+    scad_render_to_file(stabilizer_plate(), "scad/Stabilizer_Plate.scad", file_header=header)
 
     for d in (9, 10, 12, 16, 20):
         scad_render_to_file(round_mount_light(d, opening_angle=None), "scad/round_mount_d{:.1f}.scad".format(d), file_header=header)
