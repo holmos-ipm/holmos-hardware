@@ -47,7 +47,10 @@ def base_rods30():
     diam_hole = 6
     clamp_diff = .5  # how much smaller is the clamp, i.e. how far does it need to bend?
 
-    block = rounded_plate((40, 10, 10), 3)
+    mount_height = 10  # height (y) of mount
+    mount_z = 10  # length (z) of mount
+
+    block = rounded_plate((40, mount_height, mount_z), 3)
 
     for x in (-15, 15):
         block -= translate((x, 0, 0))(cylinder(d=diam_hole, h=20, center=True))
@@ -55,6 +58,7 @@ def base_rods30():
         block -= translate((x_tunnel, -5, 0))(
             cube((diam_hole-clamp_diff, 10, 20), center=True))  # "tunnel" for rod to slide into clip
 
+    block -= translate((0, -mount_height/2, 0))(cylinder(d=15, h=2*mount_z, center=True))
 
     block = translate((0, -25, 0))(block)
     return block()
