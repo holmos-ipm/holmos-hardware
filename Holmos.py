@@ -259,6 +259,14 @@ def base_plate():
     plate += translate([-c_dx/2, c_dy/2, h])(cylinder(d=12, center=True, h=20))
     plate -= translate([-c_dx/2, c_dy/2, h])(cylinder(d=c_r, center=True, h=50))
     
+    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2, 15])(owis23hole()))
+    plate -= rotate([0,-90,0])(translate([c_dx/2, -c_dy/2, 15])(owis23hole()))
+    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2-15, 15])(owis23hole()))
+    
+    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2+15, 15])(owis23hole()))
+    plate -= rotate([0,-90,0])(translate([c_dx/2, -c_dy/2+15, 15])(owis23hole()))
+    plate -= rotate([0,90,0])(translate([-c_dx/2, c_dy/2, 15])(owis23hole()))
+    
     return plate
 
 if __name__ == "__main__":
