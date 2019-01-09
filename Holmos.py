@@ -207,6 +207,59 @@ def objective_mount():
     
     return mount
 
+def base_plate():
+    """base plate for cheap holmos setup"""
+    
+    """size"""
+    w = 70
+    l = 120
+    h = 10
+    
+    """distances of m6 holes to fit 25 mm optical table"""    
+    dx = 50
+    dy = 100
+                
+    plate = rounded_plate([w,l,h], r=6)
+    
+    """m6 holes"""
+    plate -= translate([-dx/2, -dy/2, h/2])(cylinder(d=12, center=True, h=10))
+    plate -= translate([-dx/2, -dy/2, -h/2])(cylinder(d=6, center=True, h=15))
+    
+    plate -= translate([-dx/2, dy/2, h/2])(cylinder(d=12, center=True, h=10))
+    plate -= translate([-dx/2, dy/2, -h/2])(cylinder(d=6, center=True, h=15))
+    
+    plate -= translate([dx/2, -dy/2, h/2])(cylinder(d=12, center=True, h=10))
+    plate -= translate([dx/2, -dy/2, -h/2])(cylinder(d=6, center=True, h=15))
+    
+    plate -= translate([dx/2, dy/2, h/2])(cylinder(d=12, center=True, h=10))
+    plate -= translate([dx/2, dy/2, -h/2])(cylinder(d=6, center=True, h=15))
+    
+    """actual cage system"""
+    c_dx = 30
+    c_dy = 60
+    c_r  = 6
+        
+    plate += translate([-c_dx/2, -c_dy/2, h])(cylinder(d=12, center=True, h=20))
+    plate -= translate([-c_dx/2, -c_dy/2, h])(cylinder(d=c_r, center=True, h=50))
+    
+    plate += translate([c_dx/2, -c_dy/2, h])(cylinder(d=12, center=True, h=20))
+    plate -= translate([c_dx/2, -c_dy/2, h])(cylinder(d=c_r, center=True, h=50))
+    
+    plate += translate([-c_dx/2, c_dy/2-15, h])(cylinder(d=12, center=True, h=20))
+    plate -= translate([-c_dx/2, c_dy/2-15, h])(cylinder(d=c_r, center=True, h=50))
+    
+    c_r  = 6.1
+        
+    plate += translate([-c_dx/2, -c_dy/2+15, h])(cylinder(d=12, center=True, h=20))
+    plate -= translate([-c_dx/2, -c_dy/2+15, h])(cylinder(d=c_r, center=True, h=50))
+    
+    plate += translate([c_dx/2, -c_dy/2+15, h])(cylinder(d=12, center=True, h=20))
+    plate -= translate([c_dx/2, -c_dy/2+15, h])(cylinder(d=c_r, center=True, h=50))
+    
+    plate += translate([-c_dx/2, c_dy/2, h])(cylinder(d=12, center=True, h=20))
+    plate -= translate([-c_dx/2, c_dy/2, h])(cylinder(d=c_r, center=True, h=50))
+    
+    return plate
 
 if __name__ == "__main__":
     import os
@@ -235,6 +288,8 @@ if __name__ == "__main__":
     scad_render_to_file(rpi_cam_owis(), "scad/RPi-Cam in Owis.scad", file_header=header)
     
     scad_render_to_file(objective_mount(), "scad/Objective_Mount.scad", file_header=header)
+    
+    scad_render_to_file(base_plate(), "scad/Base_Plate.scad", file_header=header)
 
     for d in (9, 10, 12, 16, 20):
         scad_render_to_file(round_mount_light(d, opening_angle=None), "scad/round_mount_d{:.1f}.scad".format(d), file_header=header)
