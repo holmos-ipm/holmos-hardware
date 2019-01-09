@@ -71,7 +71,7 @@ def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inne
     return base_plate + ring + connector
 
 
-def rpi_cam_owis():
+def rpi_cam_mount():
     # https://www.raspberrypi.org/documentation/hardware/camera/rpi-cam-v2_1-dimensions.pdf
     # 2016-11-30: printed; works. but: needs 4 spacers to keep the smd components on the back of the camera from touching the plate.
     rpi_thick = 3
@@ -90,7 +90,7 @@ def rpi_cam_owis():
     )
     base_plate += base()
 
-    plate = translate([0, 0, -5])(rpi_plate(rpi_thick))
+    plate = translate([0, 0, -5])(rpi_cam_plate(rpi_thick))
 
     for strut_x in struts_x:
         strut = translate([strut_x, -(20 - strut_y_end) / 2, 0])(cube([strut_thick, 20 + strut_y_end, 10], center=True))
@@ -103,7 +103,7 @@ def rpi_cam_owis():
     return base_plate + plate
 
 
-def rpi_plate(thick=5):
+def rpi_cam_plate(thick=5):
     "plate for raspberry pi camera, with camera at [0,0,0], facing down"
     rpi_holes_x_2 = 21 / 2
     rpi_holes_y = 12.5
@@ -118,7 +118,7 @@ def rpi_plate(thick=5):
     return rpi_plate
 
 
-def owis_slide_holder(display=True):
+def slide_holder(display=True):
     dov_h = 3
     dov_w0 = 5
     dov_w1 = 7
@@ -289,11 +289,11 @@ if __name__ == "__main__":
     if not os.path.exists("stl"):
         os.mkdir("stl")
 
-    scad_render_to_file(owis_slide_holder(False), "scad/Owis-slide-holder.scad", file_header=header)
+    scad_render_to_file(slide_holder(False), "scad/Owis-slide-holder.scad", file_header=header)
 
     scad_render_to_file(round_mount_light(), "scad/Kosmos in Owis - offen.scad", file_header=header)
 
-    scad_render_to_file(rpi_cam_owis(), "scad/RPi-Cam in Owis.scad", file_header=header)
+    scad_render_to_file(rpi_cam_mount(), "scad/RPi-Cam in Owis.scad", file_header=header)
     
     scad_render_to_file(objective_mount(), "scad/Objective_Mount.scad", file_header=header)
     
