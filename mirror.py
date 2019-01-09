@@ -7,7 +7,7 @@ import warnings
 from solid.utils import *  # pip install Solidpython
 import numpy
 
-from Holmos import owis_holes
+from base import owis_holes
 from helpers import hexagon
 
 
