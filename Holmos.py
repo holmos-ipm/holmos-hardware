@@ -3,42 +3,8 @@
 from solid.utils import *  # pip install Solidpython
 import numpy
 
-from helpers import cyl_arc, hexagon
-
-
-def owis_block():
-    plate = cube([40, 40, 10], True)
-
-    plate -= owis_holes(True)
-
-    return plate
-
-
-def owis_holes(move_to_minus_y=False):
-    """
-    Pair of holes for Owis 40, centered at x=y=0, extending upwards from z=0
-    :param move_to_minus_y: Move holes to z=-20, i.e. for optical axis at z=0
-    :return:
-    """
-    hole = owis23hole()
-    owis_holes = translate([-10, 0, 0])(hole) + translate([10, 0, 0])(hole)  # z=0 is outside plane
-
-    if move_to_minus_y:
-        owis_holes = translate([0, -20, 0])(
-            rotate([-90, 0, 0])(
-                owis_holes
-            )
-        )
-    return owis_holes
-
-
-def owis23hole():
-    """hole from below into z=0 plane, for M2.3 screws"""
-    hole = cylinder(1, h=10, center=True)
-    hole += translate([0, 0, -5])(
-        cylinder(r1=2, r2=1, h=2, center=True)
-    )
-    return translate([0, 0, 5])(hole)
+from base import owis_holes, base, owis23hole
+from helpers import cyl_arc, hexagon, rounded_plate
 
 
 def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inner_diam=None):
@@ -67,11 +33,11 @@ def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inne
             rounded_plate([30, 10, base_thick], 4)
         )
     )
-    base_plate -= hole()(owis_holes(True))
+    base_plate += base()
 
     outer_diam = inner_diam+2 * ring_thick
     ring = cyl_arc(r=outer_diam/2, h=z_thick, a0=opening_angle, a1=-opening_angle)
-    if inner_diam is None:
+    if stop_inner_diam is None:
         ring -= cylinder(d=inner_diam, h=2*z_thick, center=True)
     else:
         ring -= cylinder(d=stop_inner_diam, h=2*z_thick, center=True)
@@ -119,10 +85,10 @@ def rpi_cam_owis():
     # base_plate = translate([0, -20+base_thick/2, 0])(cube([40, base_thick, 10], center=True))
     base_plate = translate([0, -20 + base_thick / 2, 0])(
         rotate([90, 0, 0])(
-            rounded_plate([40, 10, base_thick], 2)
+            rounded_plate([30, 10, base_thick], 2)
         )
     )
-    base_plate -= hole()(owis_holes(True))
+    base_plate += base()
 
     plate = translate([0, 0, -5])(rpi_plate(rpi_thick))
 
@@ -232,25 +198,6 @@ def slide_clamp(clamping_reach, clamp_length, base_height=5, width=8):
     return clip + back + base
 
 
-def rounded_plate(xyz, r):
-    '''centered plate with rounded (xy) corners'''
-    x, y, z = xyz
-
-    cube_x = cube([x - 2 * r, y, z], center=True)
-    cube_y = cube([x, y - 2 * r, z], center=True)
-
-    plate = cube_x + cube_y
-
-    dx, dy = x / 2 - r, y / 2 - r
-    for x, y in [[dx, dy],
-                 [-dx, dy],
-                 [-dx, -dy],
-                 [dx, -dy]]:
-        plate += translate([x, y, 0])(cylinder(r=r, h=z, center=True))
-
-    return plate
-
-
 def objective_mount():
     """mount for microscope objective"""
     
@@ -260,6 +207,67 @@ def objective_mount():
     
     return mount
 
+def base_plate():
+    """base plate for cheap holmos setup"""
+    
+    """size"""
+    w = 70
+    l = 120
+    h = 10
+    
+    """distances of m6 holes to fit 25 mm optical table"""    
+    dx = 50
+    dy = 100
+                
+    plate = rounded_plate([w,l,h], r=6)
+    
+    """m6 holes"""
+    plate -= translate([-dx/2, -dy/2, h/2])(cylinder(d=12, center=True, h=10))
+    plate -= translate([-dx/2, -dy/2, -h/2])(cylinder(d=6, center=True, h=15))
+    
+    plate -= translate([-dx/2, dy/2, h/2])(cylinder(d=12, center=True, h=10))
+    plate -= translate([-dx/2, dy/2, -h/2])(cylinder(d=6, center=True, h=15))
+    
+    plate -= translate([dx/2, -dy/2, h/2])(cylinder(d=12, center=True, h=10))
+    plate -= translate([dx/2, -dy/2, -h/2])(cylinder(d=6, center=True, h=15))
+    
+    plate -= translate([dx/2, dy/2, h/2])(cylinder(d=12, center=True, h=10))
+    plate -= translate([dx/2, dy/2, -h/2])(cylinder(d=6, center=True, h=15))
+    
+    """actual cage system"""
+    c_dx = 30
+    c_dy = 60
+    c_r  = 6
+        
+    plate += translate([-c_dx/2, -c_dy/2, h])(cylinder(d=12, center=True, h=20))
+    plate -= translate([-c_dx/2, -c_dy/2, h])(cylinder(d=c_r, center=True, h=50))
+    
+    plate += translate([c_dx/2, -c_dy/2, h])(cylinder(d=12, center=True, h=20))
+    plate -= translate([c_dx/2, -c_dy/2, h])(cylinder(d=c_r, center=True, h=50))
+    
+    plate += translate([-c_dx/2, c_dy/2-15, h])(cylinder(d=12, center=True, h=20))
+    plate -= translate([-c_dx/2, c_dy/2-15, h])(cylinder(d=c_r, center=True, h=50))
+    
+    c_r  = 6.1
+        
+    plate += translate([-c_dx/2, -c_dy/2+15, h])(cylinder(d=12, center=True, h=20))
+    plate -= translate([-c_dx/2, -c_dy/2+15, h])(cylinder(d=c_r, center=True, h=50))
+    
+    plate += translate([c_dx/2, -c_dy/2+15, h])(cylinder(d=12, center=True, h=20))
+    plate -= translate([c_dx/2, -c_dy/2+15, h])(cylinder(d=c_r, center=True, h=50))
+    
+    plate += translate([-c_dx/2, c_dy/2, h])(cylinder(d=12, center=True, h=20))
+    plate -= translate([-c_dx/2, c_dy/2, h])(cylinder(d=c_r, center=True, h=50))
+    
+    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2, 15])(owis23hole()))
+    plate -= rotate([0,-90,0])(translate([c_dx/2, -c_dy/2, 15])(owis23hole()))
+    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2-15, 15])(owis23hole()))
+    
+    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2+15, 15])(owis23hole()))
+    plate -= rotate([0,-90,0])(translate([c_dx/2, -c_dy/2+15, 15])(owis23hole()))
+    plate -= rotate([0,90,0])(translate([-c_dx/2, c_dy/2, 15])(owis23hole()))
+    
+    return plate
 
 if __name__ == "__main__":
     import os
@@ -288,6 +296,8 @@ if __name__ == "__main__":
     scad_render_to_file(rpi_cam_owis(), "scad/RPi-Cam in Owis.scad", file_header=header)
     
     scad_render_to_file(objective_mount(), "scad/Objective_Mount.scad", file_header=header)
+    
+    scad_render_to_file(base_plate(), "scad/Base_Plate.scad", file_header=header)
 
     for d in (9, 10, 12, 16, 20):
         scad_render_to_file(round_mount_light(d, opening_angle=None), "scad/round_mount_d{:.1f}.scad".format(d), file_header=header)

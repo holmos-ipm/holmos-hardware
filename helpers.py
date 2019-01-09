@@ -5,7 +5,7 @@ Created on 02.01.2019
 @author: beckmann
 """
 import numpy
-from solid import translate, cube, rotate, union
+from solid import translate, cube, rotate, union, cylinder
 
 from solid.utils import *  # pip install Solidpython
 
@@ -53,3 +53,22 @@ def hexagon(diam, height):
     for i in range(n):
         boxes.append(rotate((0, 0, 360*i/n))(single_box))
     return union()(boxes)
+
+
+def rounded_plate(xyz, r):
+    '''centered plate with rounded (xy) corners'''
+    x, y, z = xyz
+
+    cube_x = cube([x - 2 * r, y, z], center=True)
+    cube_y = cube([x, y - 2 * r, z], center=True)
+
+    plate = cube_x + cube_y
+
+    dx, dy = x / 2 - r, y / 2 - r
+    for x, y in [[dx, dy],
+                 [-dx, dy],
+                 [-dx, -dy],
+                 [dx, -dy]]:
+        plate += translate([x, y, 0])(cylinder(r=r, h=z, center=True))
+
+    return plate
