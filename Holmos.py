@@ -118,7 +118,44 @@ def rpi_cam_plate(thick=5):
     return rpi_plate
 
 
-def slide_holder(display=True):
+def rpi_mount():
+    """Mount for Raspberry Pi using four screws.
+    Requires four cylindrical spacers.
+    RPi is in (optical) XZ-plane.
+    Plate is printed in (printer) XY plane
+    https://www.raspberrypi.org/documentation/hardware/raspberrypi/mechanical/rpi_MECH_3bplus.pdf"""
+    hole_sep_z = 58
+    hole_sep_x = 49
+
+    hole_diam = 2  # M2.3
+    strut_width = 10
+    strut_thick = 3
+
+    hole_diagonal = (hole_sep_x**2 + hole_sep_z**2)**.5
+
+    strut_angle_deg = numpy.rad2deg(numpy.arctan(hole_sep_x/hole_sep_z))  # angle < 45°
+
+    diag_strut = rounded_plate((strut_width, hole_diagonal+strut_width, strut_thick), strut_width/2)
+    for y in (hole_diagonal/2, -hole_diagonal/2):
+        thread = cylinder(d=hole_diam, h=2*strut_thick, center=True)
+        thread = hole()(thread)
+        diag_strut += translate((0, y, 0))(thread)
+
+    cross = rotate((0, 0, -strut_angle_deg))(diag_strut)
+    cross += rotate((0, 0, strut_angle_deg))(diag_strut)
+    cross = translate((0, 0, -strut_thick/2))(cross)  # to z=0...-thick,
+
+    mount_strut = cube((hole_sep_x, strut_width, strut_thick), center=True)
+    mount_strut = translate((0, 0, -strut_thick/2))(mount_strut)  # to z=0...-thick,
+    mount_strut += rotate((-90,0,0))(translate((0,20,0))(base()))  # from optical-axis coords to our coords.
+    cross += translate((0, hole_sep_z/2, 0))(mount_strut)
+    cross += translate((0, -hole_sep_z/2, 0))(mount_strut)
+
+    return cross
+
+
+def slide_holder(display=True, angle_deg=0):
+    """deg=0: "normal" orientation: slide is perpendicular to optical axis"""
     dov_h = 3
     dov_w0 = 5
     dov_w1 = 7
@@ -132,7 +169,10 @@ def slide_holder(display=True):
     clamp_length = numpy.sqrt(2) * clamp_reach
 
     base_plate = translate([0, -(40 - base_thick) / 2, 0])(cube([40, base_thick, 10], center=True))
-    base_plate -= hole()(owis_holes(True))
+    base_plate += base()
+    base_plate = rotate((0, angle_deg, 0))(base_plate)
+
+    base_plate += translate([0, -(40 - base_thick) / 2, 0])(cube([40, base_thick, 10], center=True))
 
     clamp = translate([0, 0, -1])(slide_clamp(clamp_reach, clamp_length, base_height=clamp_base, width=clamp_width))
 
@@ -167,6 +207,8 @@ def slide_holder(display=True):
         clamps = translate([clamp_spacing / 2 + clamp_length + 5, -20 + clamp_width / 2, 0])(rotate([0, 0, -90])(clamp))
         clamps += translate([-clamp_spacing / 2 - clamp_length - 5, -20 + clamp_width / 2, 0])(
             rotate([0, 0, 90])(clamp))
+
+    base_plate = translate((0, clamp_width-base_thick, 0))(base_plate)
 
     return base_plate + clamps
 
@@ -269,51 +311,41 @@ def base_plate():
     
     return plate
 
+
 def stabilizer_plate():
     """stabilizer plate for cheap holmos setup"""
-    
+
     """size"""
-    w = 40
-    l = 65
-    h = 10
-    
-    plate = rounded_plate([w,l,h], r=6)
-    plate -= translate([w/4, l/3, 0])(rounded_plate([w,l,h+10], r=6))
-    
+    width = 40
+    length = 65
+    height = 10
+
+    plate = rounded_plate([width,length,height], r=6)
+    plate -= translate([width/4, length/3, 0])(rounded_plate([width,length,height+10], r=6))
+
     """actual cage system"""
     c_dx = 30
     c_dy = 60
-    c_r  = 6
-        
-    plate += translate([-c_dx/2, -c_dy/2, h/2])(cylinder(d=12, center=True, h=30))
-    plate -= translate([-c_dx/2, -c_dy/2, h/2])(cylinder(d=c_r, center=True, h=50))
-    
-    plate += translate([c_dx/2, -c_dy/2, h/2])(cylinder(d=12, center=True, h=30))
-    plate -= translate([c_dx/2, -c_dy/2, h/2])(cylinder(d=c_r, center=True, h=50))
-    
-    plate += translate([-c_dx/2, c_dy/2-15, h/2])(cylinder(d=12, center=True, h=30))
-    plate -= translate([-c_dx/2, c_dy/2-15, h/2])(cylinder(d=c_r, center=True, h=50))
-    
-    c_r  = 6.1
-        
-    plate += translate([-c_dx/2, -c_dy/2+15, h/2])(cylinder(d=12, center=True, h=30))
-    plate -= translate([-c_dx/2, -c_dy/2+15, h/2])(cylinder(d=c_r, center=True, h=50))
-    
-    plate += translate([c_dx/2, -c_dy/2+15, h/2])(cylinder(d=12, center=True, h=30))
-    plate -= translate([c_dx/2, -c_dy/2+15, h/2])(cylinder(d=c_r, center=True, h=50))
-    
-    plate += translate([-c_dx/2, c_dy/2, h/2])(cylinder(d=12, center=True, h=30))
-    plate -= translate([-c_dx/2, c_dy/2, h/2])(cylinder(d=c_r, center=True, h=50))
-    
-    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2, 15])(owis23hole()))
-    plate -= rotate([0,-90,0])(translate([c_dx/2, -c_dy/2, 15])(owis23hole()))
-    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2-15, 15])(owis23hole()))
-    
-    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2+15, 15])(owis23hole()))
-    plate -= rotate([0,-90,0])(translate([c_dx/2, -c_dy/2+15, 15])(owis23hole()))
-    plate -= rotate([0,90,0])(translate([-c_dx/2, c_dy/2, 15])(owis23hole()))
-    
+    c_r = 6
+
+    tube_length = 30
+
+    tube_z_shift = (tube_length-height)/2
+
+    tube = cylinder(d=12, center=True, h=tube_length)
+    tube += hole()(cylinder(d=c_r, center=True, h=2*tube_length))
+    tube += hole()(translate([-6.1, 0, tube_length/2-5])(rotate([0,90,0])(owis23hole())))
+    tube += hole()(translate([6.1, 0, tube_length/2-5])(rotate([0,-90,0])(owis23hole())))
+
+    for (dx, dy) in ((-c_dx/2, -c_dy/2),
+                     (c_dx/2, -c_dy/2),
+                     (-c_dx/2, c_dy/2-15)):
+        for cr, ddy in ((6, 0), (6.1, 15)):
+            final_y = dy+ddy
+            plate += translate((dx, final_y, tube_z_shift))(tube)
+
     return plate
+
 
 if __name__ == "__main__":
     import os
@@ -335,48 +367,19 @@ if __name__ == "__main__":
     if not os.path.exists("stl"):
         os.mkdir("stl")
 
-    scad_render_to_file(slide_holder(False), "scad/Owis-slide-holder.scad", file_header=header)
+    scad_render_to_file(slide_holder(False), "scad/slide-holder.scad", file_header=header)
+    scad_render_to_file(slide_holder(False, 45), "scad/beamsplitter-holder.scad", file_header=header)
 
-    scad_render_to_file(round_mount_light(), "scad/Kosmos in Owis - offen.scad", file_header=header)
+    #scad_render_to_file(round_mount_light(), "scad/Kosmos in Owis - offen.scad", file_header=header)
 
     scad_render_to_file(rpi_cam_mount(), "scad/RPi-Cam in Owis.scad", file_header=header)
     
-    scad_render_to_file(objective_mount(), "scad/Objective_Mount.scad", file_header=header)
+    #scad_render_to_file(objective_mount(), "scad/Objective_Mount.scad", file_header=header)
     
     scad_render_to_file(base_plate(), "scad/Base_Plate.scad", file_header=header)
-    
+
     scad_render_to_file(stabilizer_plate(), "scad/Stabilizer_Plate.scad", file_header=header)
 
-    for d in (9, 10, 12, 16, 20):
-        scad_render_to_file(round_mount_light(d, opening_angle=None), "scad/round_mount_d{:.1f}.scad".format(d), file_header=header)
-
-    if render_STL:
-        files = filter(lambda f: ".scad" in f, os.listdir("scad"))
-        processes = []
-        IDLE_PRIORITY_CLASS = 0x00000040
-        for filename in list(files):
-            filepath = os.path.join("scad", filename)
-            outfile = filename.replace(".scad", ".stl")
-            outfile = os.path.join("stl", outfile)
-            print("rendering:", outfile)
-            if os.path.isfile(outfile):
-                os.remove(outfile)
-                print(outfile, "deleted")
-            cmdline = "C:\openscad\openscad.exe -o \"{}\" \"{}\"".format(outfile, filepath)
-            print(cmdline)
-            proc = subprocess.Popen(cmdline, creationflags=IDLE_PRIORITY_CLASS)
-            processes.append(proc)
-    
-        while True:
-            num_running = 0
-            for proc in processes:
-                if proc.poll() is None:
-                    num_running += 1
-            if num_running == 0:
-                break
-            print("waiting for {}/{} processes".format(num_running, len(processes)))
-            time.sleep(1)
-    
-        print(processes[0].stderr)
+    scad_render_to_file(rpi_mount(), "scad/rpi_mount.scad", file_header=header)
 
 

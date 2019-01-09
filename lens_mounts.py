@@ -26,6 +26,11 @@ if __name__ == '__main__':
     scad_render_to_file(round_mount_light(20, opening_angle=None, stop_inner_diam=19),
                         "scad/objective_mount_edmund4x_simple.scad", file_header=header)
 
-    for d in (25.4, 16.5):
+    # with stop - lenses
+    for d in (25.4,):
         scad_render_to_file(round_mount_light(d, opening_angle=None, stop_inner_diam=d-2),
                         "scad/lens mount_d{:.1f}.scad".format(d), file_header=header)
+
+    # without stop - lasers
+    for d in (12,):
+        scad_render_to_file(round_mount_light(d, opening_angle=None), "scad/round_mount_d{:.1f}.scad".format(d), file_header=header)
