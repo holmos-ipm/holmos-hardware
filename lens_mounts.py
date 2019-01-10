@@ -27,7 +27,7 @@ if __name__ == '__main__':
                         "scad/objective_mount_edmund4x_simple.scad", file_header=header)
 
     # with stop - lenses
-    for d in (25.4,):
+    for d in (25.4, 20):
         scad_render_to_file(round_mount_light(d, opening_angle=None, stop_inner_diam=d-2),
                         "scad/lens mount_d{:.1f}.scad".format(d), file_header=header)
 
