@@ -63,18 +63,17 @@ def base_rods30():
     return base
 
 
-def single_rod_clamp():
+def single_rod_clamp(z_length=10):
     """single clamp to attach to a z-tube.
     The tube is at xy = (0,5), so that this clamp attaches to things at y=0...height"""
     diam_hole = 6
     clamp_diff = .5  # how much smaller is the clamp, i.e. how far does it need to bend?
 
     mount_height = 10  # height (y) of mount
-    mount_z = 10  # length (z) of mount
 
-    block = rounded_plate((2*diam_hole, mount_height, mount_z), r=2)
+    block = rounded_plate((2*diam_hole, mount_height, z_length), r=2)
 
-    block += hole()(cylinder(d=diam_hole, h=20, center=True))
+    block += hole()(cylinder(d=diam_hole, h=2*z_length, center=True))
     block += hole()(translate((-clamp_diff/2, -mount_height//2, 0))(cube((diam_hole-clamp_diff, 10, 20), center=True)))  # "tunnel" for rod to slide into clip
 
     return block()
