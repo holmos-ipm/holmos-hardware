@@ -249,85 +249,7 @@ def objective_mount():
     
     return mount
 
-def base_plate():
-    """base plate for cheap holmos setup"""
-    
-    """size"""
-    width = 70
-    length = 120
-    height = 10
-    
-    """distances of m6 holes to fit 25 mm optical table"""    
-    dx = 50
-    dy = 100
-                
-    plate = rounded_plate([width,length,height], r=6)
-    
-    """m6 holes"""
-    single_hole = hole()(translate([0,0, height/2])(cylinder(d=12, center=True, h=height)))
-    single_hole += hole()(translate([0,0, -height/2])(cylinder(d=6.1, center=True, h=2*height)))
-   
-    for(currx, curry) in ((-dx/2, -dy/2),(-dx/2, dy/2), (dx/2, -dy/2), (dx/2, dy/2)):
-        plate += translate([currx, curry, 0])(single_hole)
-        
-    """actual cage system"""
-    c_dx = 30
-    c_dy = 60
-    c_r  = 6.1
-    
-    tube_length = 30
-
-    tube_z_shift = (tube_length-height)/2
-
-    tube = cylinder(d=12, center=True, h=tube_length)
-    tube += hole()(cylinder(d=c_r, center=True, h=2*tube_length))
-    tube += hole()(translate([-6.1, 0, tube_length/2-5])(rotate([0,90,0])(owis23hole())))
-    tube += hole()(translate([6.1, 0, tube_length/2-5])(rotate([0,-90,0])(owis23hole())))
-        
-    for (dx, dy) in ((-c_dx/2, -c_dy/2),
-                     (c_dx/2, -c_dy/2),
-                     (-c_dx/2, c_dy/2-15)):
-        for cr, ddy in ((6, 0), (6.1, 15)):
-            final_y = dy+ddy
-            plate += translate((dx, final_y, tube_z_shift))(tube)
-    
-    return plate
-
-def stabilizer_plate():
-    """stabilizer plate for cheap holmos setup"""
-
-    """size"""
-    width = 40
-    length = 65
-    height = 10
-
-    plate = rounded_plate([width,length,height], r=6)
-    plate -= translate([width/4, length/3, 0])(rounded_plate([width,length,height+10], r=6))
-
-    """actual cage system"""
-    c_dx = 30
-    c_dy = 60
-    c_r = 6
-
-    tube_length = 30
-
-    tube_z_shift = (tube_length-height)/2
-
-    tube = cylinder(d=12, center=True, h=tube_length)
-    tube += hole()(cylinder(d=c_r, center=True, h=2*tube_length))
-    tube += hole()(translate([-6.1, 0, tube_length/2-5])(rotate([0,90,0])(owis23hole())))
-    tube += hole()(translate([6.1, 0, tube_length/2-5])(rotate([0,-90,0])(owis23hole())))
-
-    for (dx, dy) in ((-c_dx/2, -c_dy/2),
-                     (c_dx/2, -c_dy/2),
-                     (-c_dx/2, c_dy/2-15)):
-        for cr, ddy in ((6, 0), (6.1, 15)):
-            final_y = dy+ddy
-            plate += translate((dx, final_y, tube_z_shift))(tube)
-
-    return plate
-
-def clamp_stabilizer():
+def cage_stabilizer():
     """stabilizer with 3 clamps for new HolMOS-Cage"""
     
     cage_base = 30
@@ -351,7 +273,34 @@ def clamp_stabilizer():
     
     return stabilizer
 
-def clamp_base_plate():
+def cage_side_stabilizer():
+    """stabilizer for both sides of new HolMOS-Cage"""
+    
+    sep_z = 58
+    sep_x = 49
+
+    strut_width = 10
+    strut_thick = 3
+
+    diagonal = (sep_x**2 + sep_z**2)**.5
+
+    strut_angle_deg = numpy.rad2deg(numpy.arctan(sep_x/sep_z))  # angle < 45°
+
+    diag_strut = rounded_plate((strut_width, diagonal+strut_width, strut_thick), strut_width/2)
+    
+    cross = rotate((0, 0, -strut_angle_deg))(diag_strut)
+    cross += rotate((0, 0, strut_angle_deg))(diag_strut)
+    cross = translate((0, 0, -strut_thick/2))(cross)  # to z=0...-thick,
+
+    mount_strut = cube((sep_x, strut_width, strut_thick), center=True)
+    mount_strut = translate((0, 0, -strut_thick/2))(mount_strut)  # to z=0...-thick,
+    mount_strut += rotate((-90,0,0))(translate((0,20,0))(base()))  # from optical-axis coords to our coords.
+    cross += translate((0, sep_z/2, 0))(mount_strut)
+    cross += translate((0, -sep_z/2, 0))(mount_strut)
+
+    return cross
+
+def cage_base_plate():
     """base_plate with 3 clamps for new HolMOS-Cage"""
     
     cage_base = 30
@@ -407,9 +356,11 @@ if __name__ == "__main__":
     
     #scad_render_to_file(base_plate_v2(), "scad/Base_Plate.scad", file_header=header)
 
-    scad_render_to_file(clamp_stabilizer(), "scad/Clamp_Stabilizer.scad", file_header=header)
+    scad_render_to_file(cage_stabilizer(), "scad/Cage_Stabilizer.scad", file_header=header)
     
-    scad_render_to_file(clamp_base_plate(), "scad/Clamp_Base_Plate.scad", file_header=header)
+    scad_render_to_file(cage_side_stabilizer(), "scad/Cage_Side_Stabilizer.scad", file_header=header)
+    
+    scad_render_to_file(cage_base_plate(), "scad/Cage_Base_Plate.scad", file_header=header)
 
     scad_render_to_file(rpi_mount(), "scad/rpi_mount.scad", file_header=header)
 
