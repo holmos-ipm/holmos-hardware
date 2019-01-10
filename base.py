@@ -5,7 +5,7 @@ Created on 09.01.2019
 @author: beckmann
 
 Base to be added to the upper parts.
-Upper parts are expected to be 40x40mm², i.e. the base starts at z=0, y=-20 and is symmetric in +-x
+Upper parts are expected to be x,y = 40x40mm², i.e. the base starts at z=0, y=-20 and is symmetric in +-x
 
 "global_settings.ini" controls which type of base is used for all parts.
 """
@@ -44,26 +44,20 @@ def base_threads20():
 
 
 def base_rods30():
-    diam_hole = 6
-    clamp_diff = .5  # how much smaller is the clamp, i.e. how far does it need to bend?
+    """base for attaching to two parallel rods of 6mm diameter set 30mm apart."""
+    rod_sep = 30
+    single_clamp = translate((rod_sep/2, 0, 0))(single_rod_clamp())
 
-    mount_height = 10  # height (y) of mount
-    mount_z = 10  # length (z) of mount
+    base = single_clamp + mirror((1,0,0))(single_clamp)
 
-    block = rounded_plate((40, mount_height, mount_z), 3)
+    base = translate((0, -25, 0))(base)
 
-    for x in (-15, 15):
-        block -= translate((x, 0, 0))(cylinder(d=diam_hole, h=20, center=True))
-        x_tunnel = x - numpy.sign(x)*clamp_diff/2
-        block -= translate((x_tunnel, -5, 0))(
-            cube((diam_hole-clamp_diff, 10, 20), center=True))  # "tunnel" for rod to slide into clip
+    return base
 
-    block -= translate((0, -mount_height/2, 0))(cylinder(d=15, h=2*mount_z, center=True))
-
-    block = translate((0, -25, 0))(block)
-    return block()
 
 def single_rod_clamp():
+    """single clamp to attach to a z-tube.
+    The tube is at xy = (0,5), so that this clamp attaches to things at y=0...height"""
     diam_hole = 6
     clamp_diff = .5  # how much smaller is the clamp, i.e. how far does it need to bend?
 
@@ -72,13 +66,9 @@ def single_rod_clamp():
 
     block = rounded_plate((2*diam_hole, mount_height, mount_z), r=3)
 
-    block -= translate((0, 0, 0))(cylinder(d=diam_hole, h=20, center=True))
-    x_tunnel = 0 - clamp_diff/2
-    block -= translate((x_tunnel, -5, 0))(cube((diam_hole-clamp_diff, 10, 20), center=True))  # "tunnel" for rod to slide into clip
+    block -= cylinder(d=diam_hole, h=20, center=True)
+    block -= translate((-clamp_diff/2, -mount_height//2, 0))(cube((diam_hole-clamp_diff, 10, 20), center=True))  # "tunnel" for rod to slide into clip
 
-    #block -= translate((0, -mount_height/2, 0))(cylinder(d=15, h=2*mount_z, center=True))
-
-    #lock = translate((0, -25, 0))(block)
     return block()
 
 
@@ -115,3 +105,9 @@ def owis_block():
     plate -= owis_holes(True)
 
     return plate
+
+
+if __name__ == '__main__':
+    upper = cube((40, 40, 10), center=True)
+
+    scad_render_to_file(upper+base(), "scad/tests/base_demo.scad")
