@@ -249,6 +249,13 @@ def objective_mount():
     
     return mount
 
+def tube_with_rodmount():
+    """base_plate with 3 clamps for new HolMOS-Cage"""
+    
+    mount = base_rods30();
+    
+    return mount
+
 def cage_stabilizer():
     """stabilizer with 3 clamps for new HolMOS-Cage"""
     
@@ -318,8 +325,8 @@ def cage_base_plate():
      plate += hole()(translate([0,y,5])(cylinder(d=12, center=True, h=10)))
      plate += hole()(translate([0,y,-5 ])(cylinder(d=6.1, center=True, h=2*10)))
                
-    mount_strut = translate((0,25,0))(base() )
-    mount_strut += translate((0,60,0))(rotate((0,0,180))(single_rod_clamp()))
+    mount_strut = translate((0,25,10))(base_rods30(z_length = 30) )
+    mount_strut += translate((0,60,10))(rotate((0,0,180))(single_rod_clamp(z_length = 30)))
     
     plate += mount_strut
     
@@ -361,6 +368,8 @@ if __name__ == "__main__":
     scad_render_to_file(cage_side_stabilizer(), "scad/Cage_Side_Stabilizer.scad", file_header=header)
     
     scad_render_to_file(cage_base_plate(), "scad/Cage_Base_Plate.scad", file_header=header)
+    
+    scad_render_to_file(tube_with_rodmount(), "scad/Tube_with_Rodmount.scad", file_header=header)
 
     scad_render_to_file(rpi_mount(), "scad/rpi_mount.scad", file_header=header)
 

@@ -43,17 +43,17 @@ def base_threads20():
     return hole()(owis_holes(True))
 
 
-def base_rods30(rod_sep = 30):
+def base_rods30(rod_sep = 30, z_length = 10):
     """base for attaching to two parallel rods of 6mm diameter set 30mm apart."""
     mount_height = 10  # height (y) of mount
-    single_clamp = translate((rod_sep/2, 0, 0))(single_rod_clamp())
+    single_clamp = translate((rod_sep/2, 0, 0))(single_rod_clamp(z_length))
 
     base = single_clamp + mirror((1, 0, 0))(single_clamp)
 
     r_arc = rod_sep/2  # TODO hardcoded
     arc_width = rod_sep+10-6*3  # TODO r*diam_hole of single_rod_clamp
-    arc = cube((arc_width, mount_height, 10), center=True)
-    arc -= translate((0, -r_arc + mount_height/4,0))(cylinder(r=r_arc, h=2*mount_height, center=True))
+    arc = cube((arc_width, mount_height, z_length), center=True)
+    arc -= translate((0, -r_arc + mount_height/4,0))(cylinder(r=r_arc, h=4*mount_height, center=True))
 
     base += arc
 
@@ -73,7 +73,7 @@ def single_rod_clamp(z_length=10):
     block = rounded_plate((2*diam_hole, mount_height, z_length), r=2)
 
     block += hole()(cylinder(d=diam_hole, h=2*z_length, center=True))
-    block += hole()(translate((-clamp_diff/2, -mount_height//2, 0))(cube((diam_hole-clamp_diff, 10, 20), center=True)))  # "tunnel" for rod to slide into clip
+    block += hole()(translate((-clamp_diff/2, -mount_height//2, 0))(cube((diam_hole-clamp_diff, 10, 2*z_length), center=True)))  # "tunnel" for rod to slide into clip
 
     return block()
 
