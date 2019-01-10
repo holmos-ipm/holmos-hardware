@@ -294,7 +294,7 @@ def cage_side_stabilizer():
 
     mount_strut = cube((sep_x, strut_width, strut_thick), center=True)
     mount_strut = translate((0, 0, -strut_thick/2))(mount_strut)  # to z=0...-thick,
-    mount_strut += rotate((-90,0,0))(translate((0,20,0))(base()))  # from optical-axis coords to our coords.
+    mount_strut += rotate((-90,0,0))(translate((0,20,0))(base_rods30(rod_sep=30)))  # from optical-axis coords to our coords.
     cross += translate((0, sep_z/2, 0))(mount_strut)
     cross += translate((0, -sep_z/2, 0))(mount_strut)
 

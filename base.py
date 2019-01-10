@@ -43,18 +43,17 @@ def base_threads20():
     return hole()(owis_holes(True))
 
 
-def base_rods30():
+def base_rods30(rod_sep = 30):
     """base for attaching to two parallel rods of 6mm diameter set 30mm apart."""
     mount_height = 10  # height (y) of mount
-    rod_sep = 30
     single_clamp = translate((rod_sep/2, 0, 0))(single_rod_clamp())
 
     base = single_clamp + mirror((1, 0, 0))(single_clamp)
 
-    r_arc = 12  # TODO hardcoded
-    arc_width = 40-6*3  # TODO r*diam_hole of single_rod_clamp
-    arc = translate((0, mount_height/2, 0))(cube((arc_width, mount_height, 10), center=True))
-    arc -= translate((0, -r_arc + mount_height/2,0))(cylinder(r=r_arc, h=2*mount_height, center=True))
+    r_arc = rod_sep/2  # TODO hardcoded
+    arc_width = rod_sep+10-6*3  # TODO r*diam_hole of single_rod_clamp
+    arc = cube((arc_width, mount_height, 10), center=True)
+    arc -= translate((0, -r_arc + mount_height/4,0))(cylinder(r=r_arc, h=2*mount_height, center=True))
 
     base += arc
 
