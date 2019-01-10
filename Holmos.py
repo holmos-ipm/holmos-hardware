@@ -253,61 +253,43 @@ def base_plate():
     """base plate for cheap holmos setup"""
     
     """size"""
-    w = 70
-    l = 120
-    h = 10
+    width = 70
+    length = 120
+    height = 10
     
     """distances of m6 holes to fit 25 mm optical table"""    
     dx = 50
     dy = 100
                 
-    plate = rounded_plate([w,l,h], r=6)
+    plate = rounded_plate([width,length,height], r=6)
     
     """m6 holes"""
-    plate -= translate([-dx/2, -dy/2, h/2])(cylinder(d=12, center=True, h=10))
-    plate -= translate([-dx/2, -dy/2, -h/2])(cylinder(d=6, center=True, h=15))
-    
-    plate -= translate([-dx/2, dy/2, h/2])(cylinder(d=12, center=True, h=10))
-    plate -= translate([-dx/2, dy/2, -h/2])(cylinder(d=6, center=True, h=15))
-    
-    plate -= translate([dx/2, -dy/2, h/2])(cylinder(d=12, center=True, h=10))
-    plate -= translate([dx/2, -dy/2, -h/2])(cylinder(d=6, center=True, h=15))
-    
-    plate -= translate([dx/2, dy/2, h/2])(cylinder(d=12, center=True, h=10))
-    plate -= translate([dx/2, dy/2, -h/2])(cylinder(d=6, center=True, h=15))
-    
+    single_hole = hole()(translate([0,0, height/2])(cylinder(d=12, center=True, h=height)))
+    single_hole += hole()(translate([0,0, -height/2])(cylinder(d=6.1, center=True, h=2*height)))
+   
+    for(currx, curry) in ((-dx/2, -dy/2),(-dx/2, dy/2), (dx/2, -dy/2), (dx/2, dy/2)):
+        plate += translate([currx, curry, 0])(single_hole)
+        
     """actual cage system"""
     c_dx = 30
     c_dy = 60
-    c_r  = 6
-        
-    plate += translate([-c_dx/2, -c_dy/2, h])(cylinder(d=12, center=True, h=20))
-    plate -= translate([-c_dx/2, -c_dy/2, h])(cylinder(d=c_r, center=True, h=50))
-    
-    plate += translate([c_dx/2, -c_dy/2, h])(cylinder(d=12, center=True, h=20))
-    plate -= translate([c_dx/2, -c_dy/2, h])(cylinder(d=c_r, center=True, h=50))
-    
-    plate += translate([-c_dx/2, c_dy/2-15, h])(cylinder(d=12, center=True, h=20))
-    plate -= translate([-c_dx/2, c_dy/2-15, h])(cylinder(d=c_r, center=True, h=50))
-    
     c_r  = 6.1
+    
+    tube_length = 30
+
+    tube_z_shift = (tube_length-height)/2
+
+    tube = cylinder(d=12, center=True, h=tube_length)
+    tube += hole()(cylinder(d=c_r, center=True, h=2*tube_length))
+    tube += hole()(translate([-6.1, 0, tube_length/2-5])(rotate([0,90,0])(owis23hole())))
+    tube += hole()(translate([6.1, 0, tube_length/2-5])(rotate([0,-90,0])(owis23hole())))
         
-    plate += translate([-c_dx/2, -c_dy/2+15, h])(cylinder(d=12, center=True, h=20))
-    plate -= translate([-c_dx/2, -c_dy/2+15, h])(cylinder(d=c_r, center=True, h=50))
-    
-    plate += translate([c_dx/2, -c_dy/2+15, h])(cylinder(d=12, center=True, h=20))
-    plate -= translate([c_dx/2, -c_dy/2+15, h])(cylinder(d=c_r, center=True, h=50))
-    
-    plate += translate([-c_dx/2, c_dy/2, h])(cylinder(d=12, center=True, h=20))
-    plate -= translate([-c_dx/2, c_dy/2, h])(cylinder(d=c_r, center=True, h=50))
-    
-    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2, 15])(owis23hole()))
-    plate -= rotate([0,-90,0])(translate([c_dx/2, -c_dy/2, 15])(owis23hole()))
-    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2-15, 15])(owis23hole()))
-    
-    plate -= rotate([0,90,0])(translate([-c_dx/2, -c_dy/2+15, 15])(owis23hole()))
-    plate -= rotate([0,-90,0])(translate([c_dx/2, -c_dy/2+15, 15])(owis23hole()))
-    plate -= rotate([0,90,0])(translate([-c_dx/2, c_dy/2, 15])(owis23hole()))
+    for (dx, dy) in ((-c_dx/2, -c_dy/2),
+                     (c_dx/2, -c_dy/2),
+                     (-c_dx/2, c_dy/2-15)):
+        for cr, ddy in ((6, 0), (6.1, 15)):
+            final_y = dy+ddy
+            plate += translate((dx, final_y, tube_z_shift))(tube)
     
     return plate
 
