@@ -252,7 +252,10 @@ def objective_mount():
 def tube_with_rodmount():
     """base_plate with 3 clamps for new HolMOS-Cage"""
     
-    mount = base_rods30();
+    mount = base_rods30(z_length=30)
+    mount += translate((0,0,-15))(cylinder(d=43, h=30))
+    mount += translate((0,-10,0))(cube((40,20,30), center=True))
+    mount -= translate((0,0,-30))(cylinder(d=38, h=60))
     
     return mount
 
@@ -323,7 +326,7 @@ def cage_base_plate():
     
     for y in (15,40):
      plate += hole()(translate([0,y,5])(cylinder(d=12, center=True, h=10)))
-     plate += hole()(translate([0,y,-5 ])(cylinder(d=6.1, center=True, h=2*10)))
+     plate += hole()(translate([0,y,-5 ])(cylinder(d=7.5, center=True, h=2*10)))
                
     mount_strut = translate((0,25,10))(base_rods30(z_length = 30) )
     mount_strut += translate((0,60,10))(rotate((0,0,180))(single_rod_clamp(z_length = 30)))
