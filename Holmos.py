@@ -3,7 +3,7 @@
 from solid.utils import *  # pip install Solidpython
 import numpy
 
-from base import owis_holes, base, owis23hole
+from base import owis_holes, base, owis23hole, single_rod_clamp
 from helpers import cyl_arc, hexagon, rounded_plate
 
 
