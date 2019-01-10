@@ -293,7 +293,6 @@ def base_plate():
     
     return plate
 
-
 def stabilizer_plate():
     """stabilizer plate for cheap holmos setup"""
 
@@ -328,6 +327,54 @@ def stabilizer_plate():
 
     return plate
 
+def clamp_stabilizer():
+    """stabilizer with 3 clamps for new HolMOS-Cage"""
+    
+    cage_base = 30
+    stabilizer_base = 60
+    stabilizer_height = 10
+    
+    angle = -atan(cage_base/2/stabilizer_base)/math.pi*180 
+     
+    stabilizer = translate((0,stabilizer_base/2,0))(cube((cage_base+4,stabilizer_base-10,stabilizer_height), center=True))
+    
+    stabilizer -= translate((-cage_base,stabilizer_base/2,0))(rotate((0,0,angle))(cube((cage_base,stabilizer_base,2*stabilizer_height), center=True)))
+    stabilizer -= translate((cage_base,stabilizer_base/2,0))(rotate((0,0,-angle))(cube((cage_base,stabilizer_base,2*stabilizer_height), center=True)))
+    
+    for (dd,y) in ((20,20),(10,40)):
+        stabilizer -= translate((0,y,0))(cylinder(d=dd, h=20, center=True))
+               
+    mount_strut = translate((0,25,0))(base() )
+    mount_strut += translate((0,60,0))(rotate((0,0,180))(single_rod_clamp()))
+    
+    stabilizer += mount_strut
+    
+    return stabilizer
+
+def clamp_base_plate():
+    """base_plate with 3 clamps for new HolMOS-Cage"""
+    
+    cage_base = 30
+    stabilizer_base = 60
+    stabilizer_height = 10
+    
+    angle = -atan(cage_base/2/stabilizer_base)/math.pi*180 
+     
+    plate = translate((0,stabilizer_base/2,0))(cube((cage_base+4,stabilizer_base-10,stabilizer_height), center=True))
+    
+    plate -= translate((-cage_base,stabilizer_base/2,0))(rotate((0,0,angle))(cube((cage_base,stabilizer_base,2*stabilizer_height), center=True)))
+    plate -= translate((cage_base,stabilizer_base/2,0))(rotate((0,0,-angle))(cube((cage_base,stabilizer_base,2*stabilizer_height), center=True)))
+    
+    for y in (15,40):
+     plate += hole()(translate([0,y,5])(cylinder(d=12, center=True, h=10)))
+     plate += hole()(translate([0,y,-5 ])(cylinder(d=6.1, center=True, h=2*10)))
+               
+    mount_strut = translate((0,25,0))(base() )
+    mount_strut += translate((0,60,0))(rotate((0,0,180))(single_rod_clamp()))
+    
+    plate += mount_strut
+    
+    return plate
 
 if __name__ == "__main__":
     import os
@@ -358,9 +405,11 @@ if __name__ == "__main__":
     
     #scad_render_to_file(objective_mount(), "scad/Objective_Mount.scad", file_header=header)
     
-    scad_render_to_file(base_plate(), "scad/Base_Plate.scad", file_header=header)
+    #scad_render_to_file(base_plate_v2(), "scad/Base_Plate.scad", file_header=header)
 
-    scad_render_to_file(stabilizer_plate(), "scad/Stabilizer_Plate.scad", file_header=header)
+    scad_render_to_file(clamp_stabilizer(), "scad/Clamp_Stabilizer.scad", file_header=header)
+    
+    scad_render_to_file(clamp_base_plate(), "scad/Clamp_Base_Plate.scad", file_header=header)
 
     scad_render_to_file(rpi_mount(), "scad/rpi_mount.scad", file_header=header)
 

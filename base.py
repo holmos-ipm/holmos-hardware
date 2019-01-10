@@ -63,6 +63,24 @@ def base_rods30():
     block = translate((0, -25, 0))(block)
     return block()
 
+def single_rod_clamp():
+    diam_hole = 6
+    clamp_diff = .5  # how much smaller is the clamp, i.e. how far does it need to bend?
+
+    mount_height = 10  # height (y) of mount
+    mount_z = 10  # length (z) of mount
+
+    block = rounded_plate((2*diam_hole, mount_height, mount_z), r=3)
+
+    block -= translate((0, 0, 0))(cylinder(d=diam_hole, h=20, center=True))
+    x_tunnel = 0 - clamp_diff/2
+    block -= translate((x_tunnel, -5, 0))(cube((diam_hole-clamp_diff, 10, 20), center=True))  # "tunnel" for rod to slide into clip
+
+    #block -= translate((0, -mount_height/2, 0))(cylinder(d=15, h=2*mount_z, center=True))
+
+    #lock = translate((0, -25, 0))(block)
+    return block()
+
 
 def owis_holes(move_to_minus_y=False):
     """
