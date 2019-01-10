@@ -276,8 +276,8 @@ def cage_stabilizer():
 def cage_side_stabilizer():
     """stabilizer for both sides of new HolMOS-Cage"""
     
-    sep_z = 58
-    sep_x = 49
+    sep_z = 100
+    sep_x = (15**2 + 60**2)**(1/2)
 
     strut_width = 10
     strut_thick = 3
@@ -294,7 +294,7 @@ def cage_side_stabilizer():
 
     mount_strut = cube((sep_x, strut_width, strut_thick), center=True)
     mount_strut = translate((0, 0, -strut_thick/2))(mount_strut)  # to z=0...-thick,
-    mount_strut += rotate((-90,0,0))(translate((0,20,0))(base_rods30(rod_sep=30)))  # from optical-axis coords to our coords.
+    mount_strut += rotate((-90,0,0))(translate((0,20,0))(base_rods30(rod_sep=sep_x)))  # from optical-axis coords to our coords.
     cross += translate((0, sep_z/2, 0))(mount_strut)
     cross += translate((0, -sep_z/2, 0))(mount_strut)
 
