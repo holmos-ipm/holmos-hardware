@@ -17,7 +17,7 @@ import numpy
 from solid import *
 from solid import translate, rotate, cylinder, cube
 
-from helpers import rounded_plate
+from helpers import rounded_plate, cyl_arc
 
 __config = configparser.ConfigParser()
 __config.read("global_settings.ini")
@@ -45,12 +45,20 @@ def base_threads20():
 
 def base_rods30():
     """base for attaching to two parallel rods of 6mm diameter set 30mm apart."""
+    mount_height = 10  # height (y) of mount
     rod_sep = 30
     single_clamp = translate((rod_sep/2, 0, 0))(single_rod_clamp())
 
-    base = single_clamp + mirror((1,0,0))(single_clamp)
+    base = single_clamp + mirror((1, 0, 0))(single_clamp)
 
-    base = translate((0, -25, 0))(base)
+    r_arc = 12  # TODO hardcoded
+    arc_width = 40-6*3  # TODO r*diam_hole of single_rod_clamp
+    arc = translate((0, mount_height/2, 0))(cube((arc_width, mount_height, 10), center=True))
+    arc -= translate((0, -r_arc + mount_height/2,0))(cylinder(r=r_arc, h=2*mount_height, center=True))
+
+    base += arc
+
+    base = translate((0, -20 - mount_height/2, 0))(base)
 
     return base
 
@@ -64,10 +72,10 @@ def single_rod_clamp():
     mount_height = 10  # height (y) of mount
     mount_z = 10  # length (z) of mount
 
-    block = rounded_plate((2*diam_hole, mount_height, mount_z), r=3)
+    block = rounded_plate((2*diam_hole, mount_height, mount_z), r=2)
 
-    block -= cylinder(d=diam_hole, h=20, center=True)
-    block -= translate((-clamp_diff/2, -mount_height//2, 0))(cube((diam_hole-clamp_diff, 10, 20), center=True))  # "tunnel" for rod to slide into clip
+    block += hole()(cylinder(d=diam_hole, h=20, center=True))
+    block += hole()(translate((-clamp_diff/2, -mount_height//2, 0))(cube((diam_hole-clamp_diff, 10, 20), center=True)))  # "tunnel" for rod to slide into clip
 
     return block()
 
