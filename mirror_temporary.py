@@ -87,7 +87,7 @@ def crane_mirror(assemble=True):
             rotate((0, -numpy.rad2deg(mirror_angle_rad), 0))(mirror_intermediate)
         )
     else:
-        plate += translate((mirror_offset_x + 30, 0, -thick/2+arm_width/2))(mirror_intermediate)
+        plate += translate((mirror_offset_x + 30, 0, -thick/2+rod_thick/2))(mirror_intermediate)
 
     plate += base()
     return plate

@@ -12,6 +12,9 @@ from solid.utils import *  # pip install Solidpython
 
 def cyl_arc(r, h, a0, a1):
     solid_arc_length = (a1-a0) % 360  # mod360 e.g. for -10..10 -> arc is
+    if solid_arc_length == 0:
+        return cylinder(r,h,center=True)
+
     if solid_arc_length < 180:
         return cyl_arc_lt_180(r, h, a0, a1)
     else:
