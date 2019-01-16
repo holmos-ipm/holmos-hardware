@@ -135,11 +135,7 @@ def rpi_mount():
 
     strut_angle_deg = numpy.rad2deg(numpy.arctan(hole_sep_x/hole_sep_z))  # angle < 45°
 
-    diag_strut = rounded_plate((strut_width, hole_diagonal+strut_width, strut_thick), strut_width/2)
-    for y in (hole_diagonal/2, -hole_diagonal/2):
-        thread = hole23()
-        thread = hole()(thread)
-        diag_strut += translate((0, y, -strut_thick/2))(thread)
+    diag_strut = strut_with_holes(hole_diagonal, strut_thick, strut_width)
 
     cross = rotate((0, 0, -strut_angle_deg))(diag_strut)
     cross += rotate((0, 0, strut_angle_deg))(diag_strut)
@@ -153,6 +149,16 @@ def rpi_mount():
     cross += translate((0, -hole_sep_z/2, 0))(mount_strut)
 
     return cross
+
+
+def strut_with_holes(hole_dist, strut_thick, strut_width):
+    """flat strut with two holes at y=+-hole_dist"""
+    diag_strut = rounded_plate((strut_width, hole_dist + strut_width, strut_thick), strut_width / 2)
+    for y in (hole_dist / 2, -hole_dist / 2):
+        thread = hole23()
+        thread = hole()(thread)
+        diag_strut += translate((0, y, -strut_thick / 2))(thread)
+    return diag_strut
 
 
 def slide_holder(display=True, angle_deg=0):
@@ -284,6 +290,8 @@ def cage_stabilizer():
     mount_strut += translate((0,60,0))(rotate((0,0,180))(single_rod_clamp()))
     
     stabilizer += mount_strut
+
+    stabilizer = translate((0, -25, 0))(mirror((0, 1, 0))(stabilizer))
     
     return stabilizer
 
@@ -331,16 +339,24 @@ def cage_base_plate():
     plate -= translate((-cage_base,stabilizer_base/2,0))(rotate((0,0,angle))(cube((cage_base,stabilizer_base,2*stabilizer_height), center=True)))
     plate -= translate((cage_base,stabilizer_base/2,0))(rotate((0,0,-angle))(cube((cage_base,stabilizer_base,2*stabilizer_height), center=True)))
     
-    for y in (15,40):
-     plate += hole()(translate([0,y,5])(cylinder(d=12, center=True, h=10)))
-     plate += hole()(translate([0,y,-5 ])(cylinder(d=7.5, center=True, h=2*10)))
+    for y in (15, 40):
+        plate += hole()(translate([0,y,5])(cylinder(d=12, center=True, h=10)))
+        plate += hole()(translate([0,y,-5 ])(cylinder(d=7.5, center=True, h=2*10)))
                
     mount_strut = translate((0,25,10))(base_rods30(z_length = 30) )
     mount_strut += translate((0,60,10))(rotate((0,0,180))(single_rod_clamp(z_length = 30)))
+
+    for y in (10, stabilizer_base-5):
+        strut_thick = 3
+        strut = strut_with_holes(hole_dist=40, strut_thick=strut_thick, strut_width=10)
+        plate += translate((0, y, (strut_thick-10)/2))(rotate((0, 0, 90))(strut))
     
     plate += mount_strut
+
+    plate = translate((0, -25, 0))(mirror((0, 1, 0))(plate))
     
     return plate
+
 
 if __name__ == "__main__":
     import os
