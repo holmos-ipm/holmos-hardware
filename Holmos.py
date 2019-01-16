@@ -3,7 +3,7 @@
 from solid.utils import *  # pip install Solidpython
 import numpy
 
-from base import owis_holes, base, owis23hole, single_rod_clamp, base_rods30
+from base import owis_holes, base, hole23, single_rod_clamp, base_rods30, rods30_dist_third_rod, rods30_diag_third_rod
 from helpers import cyl_arc, hexagon, rounded_plate
 
 
@@ -114,7 +114,7 @@ def rpi_cam_plate(thick=5):
     )
     for x in [rpi_holes_x_2, -rpi_holes_x_2]:
         for y in [0, rpi_holes_y]:
-            hole = translate([x, y, 0])(owis23hole())
+            hole = translate([x, y, 0])(hole23())
             rpi_plate -= hole
     return rpi_plate
 
@@ -128,7 +128,6 @@ def rpi_mount():
     hole_sep_z = 58
     hole_sep_x = 49
 
-    hole_diam = 2  # M2.3
     strut_width = 10
     strut_thick = 3
 
@@ -138,9 +137,9 @@ def rpi_mount():
 
     diag_strut = rounded_plate((strut_width, hole_diagonal+strut_width, strut_thick), strut_width/2)
     for y in (hole_diagonal/2, -hole_diagonal/2):
-        thread = cylinder(d=hole_diam, h=2*strut_thick, center=True)
+        thread = hole23()
         thread = hole()(thread)
-        diag_strut += translate((0, y, 0))(thread)
+        diag_strut += translate((0, y, -strut_thick/2))(thread)
 
     cross = rotate((0, 0, -strut_angle_deg))(diag_strut)
     cross += rotate((0, 0, strut_angle_deg))(diag_strut)
@@ -148,7 +147,8 @@ def rpi_mount():
 
     mount_strut = cube((hole_sep_x, strut_width, strut_thick), center=True)
     mount_strut = translate((0, 0, -strut_thick/2))(mount_strut)  # to z=0...-thick,
-    mount_strut += rotate((-90,0,0))(translate((0,20,0))(base()))  # from optical-axis coords to our coords.
+    baseplate = base(rod_sep=rods30_diag_third_rod)  # works for threads20 as well: superfluous kwargs are ignored.
+    mount_strut += rotate((-90, 0, 0))(translate((0, 20, 0))(baseplate))  # from optical-axis coords to our coords.
     cross += translate((0, hole_sep_z/2, 0))(mount_strut)
     cross += translate((0, -hole_sep_z/2, 0))(mount_strut)
 
@@ -266,7 +266,7 @@ def cage_stabilizer():
     """stabilizer with 3 clamps for new HolMOS-Cage"""
     
     cage_base = 30
-    stabilizer_base = 60
+    stabilizer_base = rods30_dist_third_rod
     stabilizer_height = 10
     
     angle = -atan(cage_base/2/stabilizer_base)/math.pi*180 
@@ -286,11 +286,12 @@ def cage_stabilizer():
     
     return stabilizer
 
+
 def cage_side_stabilizer():
     """stabilizer for both sides of new HolMOS-Cage"""
     
     sep_z = 100
-    sep_x = (15**2 + 60**2)**(1/2)
+    sep_x = rods30_diag_third_rod
 
     strut_width = 10
     strut_thick = 3
@@ -364,7 +365,7 @@ if __name__ == "__main__":
     scad_render_to_file(slide_holder(False, 45), "scad/beamsplitter-holder.scad", file_header=header)
 
 
-    scad_render_to_file(rpi_cam_mount(), "scad/RPi-Cam in Owis.scad", file_header=header)
+    scad_render_to_file(rpi_cam_mount(), "scad/RPi-Cam.scad", file_header=header)
 
     scad_render_to_file(cage_stabilizer(), "scad/Cage_Stabilizer.scad", file_header=header)
     

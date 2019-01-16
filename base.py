@@ -24,17 +24,20 @@ __config.read("global_settings.ini")
 __threads20 = __config.getboolean("mount", "Threads20mm")
 __rods30 = __config.getboolean("mount", "Rods6mmBy30mm")
 
+rods30_dist_third_rod = 60  # distance of third rod behind two main rods (orthogonal distance)
+rods30_diag_third_rod = (15**2 + rods30_dist_third_rod**2)**.5
+
 if __rods30 and __threads20:
     print("bad configuration")
     exit()
 
 
-def base():
+def base(**kwargs):
     if __threads20:
         return base_threads20()
 
     if __rods30:
-        return base_rods30()
+        return base_rods30(**kwargs)
 
     warnings.warn("No base configured, printed parts may be difficult to mount")
 
@@ -43,14 +46,14 @@ def base_threads20():
     return hole()(owis_holes(True))
 
 
-def base_rods30(rod_sep = 30, z_length = 10):
+def base_rods30(rod_sep=30, z_length=10):
     """base for attaching to two parallel rods of 6mm diameter set 30mm apart."""
     mount_height = 10  # height (y) of mount
     single_clamp = translate((rod_sep/2, 0, 0))(single_rod_clamp(z_length))
 
     base = single_clamp + mirror((1, 0, 0))(single_clamp)
 
-    r_arc = rod_sep/2  # TODO hardcoded
+    r_arc = (rod_sep**2-20**2)**.5  # TODO hardcoded
     arc_width = rod_sep+10-6*3  # TODO r*diam_hole of single_rod_clamp
     arc = cube((arc_width, mount_height, z_length), center=True)
     arc -= translate((0, -r_arc + mount_height/4,0))(cylinder(r=r_arc, h=4*mount_height, center=True))
@@ -84,7 +87,7 @@ def owis_holes(move_to_minus_y=False):
     :param move_to_minus_y: Move holes to z=-20, i.e. for optical axis at z=0
     :return:
     """
-    hole = owis23hole()
+    hole = hole23()
     owis_holes = translate([-10, 0, 0])(hole) + translate([10, 0, 0])(hole)  # z=0 is outside plane
 
     if move_to_minus_y:
@@ -96,21 +99,13 @@ def owis_holes(move_to_minus_y=False):
     return owis_holes
 
 
-def owis23hole():
+def hole23():
     """hole from below into z=0 plane, for M2.3 screws"""
     hole = cylinder(1, h=10, center=True)
     hole += translate([0, 0, -5])(
         cylinder(r1=2, r2=1, h=2, center=True)
     )
     return translate([0, 0, 5])(hole)
-
-
-def owis_block():
-    plate = cube([40, 40, 10], True)
-
-    plate -= owis_holes(True)
-
-    return plate
 
 
 if __name__ == '__main__':
