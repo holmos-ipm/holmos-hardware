@@ -204,15 +204,15 @@ def slide_holder(display=True, angle_deg=0):
         clamps = translate([1.3 * clamp_spacing / 2, 0, 0])(clamp)
         clamps += translate([-clamp_spacing / 2, 0, 0])(clamp)
         base_plate += cylinder(d=1, h=1, center=True)  # visualize optical axis
+        assembly = rotate((0, -angle_deg, 0))(base_plate + clamps)
 
     else:  # separate for printing
-        clamp = translate([7, 20+2*dov_h, (clamp_width-10)/2])(rotate((0,90,0))(clamp))
+        clamp = translate([7, 40, (clamp_width-10)/2])(rotate((0,90,0))(clamp))
         clamps = clamp + mirror((1, 0, 0))(clamp)
         base_plate = rotate((-90, 0, 0))(translate((0, 20, 0))(base_plate))
+        assembly = base_plate + clamps
 
-    #base_plate = translate((0, clamp_width-base_thick, 0))(base_plate)
-
-    return base_plate + clamps
+    return assembly
 
 
 def slide_clamp(clamping_reach, clamp_length, base_height=5, width=8):
