@@ -138,7 +138,6 @@ def crane_mirror_final(intermediate_diam, rod_thick):
     return plate
 
 
-
 if __name__ == '__main__':
 
     _fine=True
