@@ -203,13 +203,14 @@ def slide_holder(display=True, angle_deg=0):
     if display:
         clamps = translate([1.3 * clamp_spacing / 2, 0, 0])(clamp)
         clamps += translate([-clamp_spacing / 2, 0, 0])(clamp)
+        base_plate += cylinder(d=1, h=1, center=True)  # visualize optical axis
 
     else:  # separate for printing
-        clamps = translate([clamp_spacing / 2 + clamp_length + 5, -20 + clamp_width / 2, 0])(rotate([0, 0, -90])(clamp))
-        clamps += translate([-clamp_spacing / 2 - clamp_length - 5, -20 + clamp_width / 2, 0])(
-            rotate([0, 0, 90])(clamp))
+        clamp = translate([7, 20+2*dov_h, (clamp_width-10)/2])(rotate((0,90,0))(clamp))
+        clamps = clamp + mirror((1, 0, 0))(clamp)
+        base_plate = rotate((-90, 0, 0))(translate((0, 20, 0))(base_plate))
 
-    base_plate = translate((0, clamp_width-base_thick, 0))(base_plate)
+    #base_plate = translate((0, clamp_width-base_thick, 0))(base_plate)
 
     return base_plate + clamps
 
@@ -362,6 +363,7 @@ if __name__ == "__main__":
         os.mkdir("stl")
 
     scad_render_to_file(slide_holder(False), "scad/slide-holder.scad", file_header=header)
+    scad_render_to_file(slide_holder(True), "scad/slide-holder-assembled.scad", file_header=header)
     scad_render_to_file(slide_holder(False, 45), "scad/beamsplitter-holder.scad", file_header=header)
 
 
