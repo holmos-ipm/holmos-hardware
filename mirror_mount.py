@@ -90,6 +90,8 @@ def crane_mirror(assemble=True):
         plate += translate((mirror_offset_x + 30, 0, -thick/2+rod_thick/2))(mirror_intermediate)
 
     plate += base()
+    if assemble:
+        plate = rotate((0, 180, 0))(plate)
     return plate
 
 

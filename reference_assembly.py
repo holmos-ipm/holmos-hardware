@@ -16,31 +16,31 @@ import base
 
 
 class HolmosComponent:
-    part = None
+    part_func = None
     z_above_cam = None
-    print_to_optical_axis_func = None
+    name = None
 
-    def __init__(self, part, z, func=None):
-        self.part = part
+    def __init__(self, z, part_func, name=None, **kwargs):
+        self.part_func = part_func
         self.z = z
-
-        if func is None:
-            func = lambda p: p
-        self.print_to_optical_axis_func = func
+        self.name = name
+        self.kwargs = kwargs  # keyword arguments for part_func
 
 
-part_list = (HolmosComponent(Holmos.cage_base_plate(), -35),
-             HolmosComponent(Holmos.rpi_mount(), 50,
-                             lambda p: translate((20, -base.rods30_diag_third_rod/2-25, 0))(rotate((90, 0, -90))(p))),
-             HolmosComponent(Holmos.rpi_cam_mount(), 0, rotate((0, 180, 0))),
-             HolmosComponent(lens_mounts.round_mount_light(20, opening_angle=None, stop_inner_diam=19),
-                                     185, rotate((0, 180, 0))),
-             HolmosComponent(Holmos.slide_holder(True), 216),
-             HolmosComponent(Holmos.slide_holder(True, 45), 252),
-             HolmosComponent(mirror_mount.crane_mirror(True), 275, rotate((0, 180, 0))),
-             HolmosComponent(lens_mounts.round_mount_light(25.4, opening_angle=None, stop_inner_diam=23.4), 306),
-             HolmosComponent(Holmos.cage_stabilizer(), 500),
-             HolmosComponent(lens_mounts.round_mount_light(12, opening_angle=None), 550)
+part_list = (HolmosComponent(-35, Holmos.cage_base_plate),
+             HolmosComponent(50, Holmos.rpi_mount),
+             HolmosComponent(0, Holmos.rpi_cam_mount),
+             HolmosComponent(185, lens_mounts.round_mount_light, inner_diam=20, opening_angle=None, stop_inner_diam=19,
+                             name="objective_lens_mount"),
+             HolmosComponent(216, Holmos.slide_holder),
+             HolmosComponent(252, Holmos.slide_holder, angle_deg=45,
+                             name="beamsplitter_mount"),
+             HolmosComponent(275, mirror_mount.crane_mirror),
+             HolmosComponent(306, lens_mounts.round_mount_light, inner_diam=25.4, opening_angle=None, stop_inner_diam=23.4,
+                             name="condensor_lens_mount"),
+             HolmosComponent(500, Holmos.cage_stabilizer),
+             HolmosComponent(550, lens_mounts.round_mount_light, inner_diam=12, opening_angle=None,
+                             name="laser_mount")
              )
 
 
@@ -50,7 +50,7 @@ def holmos_full_assembly():
 
     assembly = translate((15, -25, h/2))(cylinder(d=6, h=h, center=True))
     for component in part_list:
-        this_part = component.print_to_optical_axis_func(component.part)
+        this_part = component.part_func(assemble=True, **component.kwargs)
         assembly += translate((0, 0, z0+component.z))(this_part)
     return assembly
 
@@ -69,12 +69,18 @@ if __name__ == '__main__':
 
     scad_render_to_file(holmos_full_assembly(), "scad/full_assembly.scad", file_header=header)
 
-    if not os.path.exists("scad/ref"):
-        os.mkdir("scad/ref")
+    if not os.path.exists("scad/complete_setup"):
+        os.mkdir("scad/complete_setup")
 
-    print("cleaning output dir...")
-    for file in os.listdir("scad/ref"):
-        os.remove(os.path.join("scad/ref", file))
+    print("cleaning output dirs...")
+    for file in os.listdir("scad/complete_setup"):
+        os.remove(os.path.join("scad/complete_setup", file))
 
-    for part in part_list:
-        scad_render_to_file(part.part)
+    for number, part in enumerate(part_list):
+        name = part.name
+        if name is None:
+            name = part.part_func.__name__
+        filename = "{:02d} - {}.scad".format(number, name)
+        print(filename)
+        part_scad = part.part_func(assemble=False, **part.kwargs)
+        scad_render_to_file(part_scad, os.path.join("scad/complete_setup/", filename), file_header=header)

@@ -1,4 +1,19 @@
 # -*- coding: utf-8 -*-
+"""
+Created on 10.01.2019
+
+@author: beckmann, bertz
+
+Parts for Holmos holographic microscope.
+
+All "final" functions - that is, parts that are supposed to be printed, need the keyword argument "assemble".
+This way, the reference assembly and the bill of materials can be generated using the same functions.
+
+If assemble=False, return the part so that it can be 3D-printed from z=0 upwards.
+                   The printer bed is the xy-plane.
+If assemble=True, return the part so that the optical axis is at z=0, with laser light traveling downwards
+                  The table (or the RPi camera) is the xy plane
+"""
 
 from solid.utils import *  # pip install Solidpython
 import numpy
@@ -7,7 +22,7 @@ from base import owis_holes, base, hole23, single_rod_clamp, base_rods30, rods30
 from helpers import cyl_arc, hexagon, rounded_plate
 
 
-def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inner_diam=None, cyl_length=10):
+def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inner_diam=None, cyl_length=10, assemble=False):
     """
     mount for cylinder centered on optical axis (z). If opening_angle is None, clamping tabs are added.
     defaults: mount for Kosmos objective
@@ -69,10 +84,15 @@ def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inne
 
     base_plate += translate((0, -(20-base_thick/2), z_thick/2))(info_text)
 
-    return base_plate + ring + connector
+    mount = base_plate + ring + connector
+
+    if assemble:
+        mount = rotate((0, 180, 0))
+
+    return mount
 
 
-def rpi_cam_mount():
+def rpi_cam_mount(assemble=False):
     # https://www.raspberrypi.org/documentation/hardware/camera/rpi-cam-v2_1-dimensions.pdf
     # 2016-11-30: printed; works. but: needs 4 spacers to keep the smd components on the back of the camera from touching the plate.
     rpi_thick = 3
@@ -101,7 +121,11 @@ def rpi_cam_mount():
         strut *= cyl
         plate += strut
 
-    return base_plate + plate
+    mount = base_plate + plate
+    if assemble:
+        mount = rotate((0, 180, 0))(mount)
+
+    return mount
 
 
 def rpi_cam_plate(thick=5):
@@ -119,7 +143,7 @@ def rpi_cam_plate(thick=5):
     return rpi_plate
 
 
-def rpi_mount():
+def rpi_mount(assemble=False):
     """Mount for Raspberry Pi using four screws.
     Requires four cylindrical spacers.
     RPi is in (optical) XZ-plane.
@@ -148,6 +172,9 @@ def rpi_mount():
     cross += translate((0, hole_sep_z/2, 0))(mount_strut)
     cross += translate((0, -hole_sep_z/2, 0))(mount_strut)
 
+    if assemble:
+        cross = translate((20, -rods30_diag_third_rod/2-25, 0))(rotate((90, 0, -90))(cross))
+
     return cross
 
 
@@ -161,7 +188,7 @@ def strut_with_holes(hole_dist, strut_thick, strut_width):
     return diag_strut
 
 
-def slide_holder(display=True, angle_deg=0):
+def slide_holder(assemble=True, angle_deg=0):
     """deg=0: "normal" orientation: slide is perpendicular to optical axis"""
     dov_h = 3
     dov_w0 = 5
@@ -206,7 +233,7 @@ def slide_holder(display=True, angle_deg=0):
     base_plate -= translate([20, -clamp_reach - clamp_base, 0])(dov_pad)
     base_plate -= translate([-20, -clamp_reach - clamp_base, 0])(dov_pad)
 
-    if display:
+    if assemble:
         clamps = translate([1.3 * clamp_spacing / 2, 0, 0])(clamp)
         clamps += translate([-clamp_spacing / 2, 0, 0])(clamp)
         base_plate += cylinder(d=1, h=1, center=True)  # visualize optical axis
@@ -269,7 +296,7 @@ def tube_with_rodmount():
     return mount
 
 
-def cage_stabilizer():
+def cage_stabilizer(assemble=False):
     """stabilizer with 3 clamps for new HolMOS-Cage"""
     
     cage_base = 30
@@ -325,7 +352,7 @@ def cage_side_stabilizer():
     return cross
 
 
-def cage_base_plate():
+def cage_base_plate(assemble=False):
     """base_plate with 3 clamps for new HolMOS-Cage"""
     
     cage_base = 30
