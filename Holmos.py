@@ -20,7 +20,6 @@ import numpy
 
 from base import owis_holes, base, hole23, single_rod_clamp, base_rods30, rods30_dist_third_rod, rods30_diag_third_rod
 from helpers import cyl_arc, hexagon, rounded_plate
-from render_stl import render_scad_dir_to_stl_dir
 
 
 def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inner_diam=None, cyl_length=10, assemble=False):
@@ -183,7 +182,7 @@ def strut_with_holes(hole_dist, strut_thick, strut_width):
     """flat strut with two holes at y=+-hole_dist"""
     diag_strut = rounded_plate((strut_width, hole_dist + strut_width, strut_thick), strut_width / 2)
     for y in (hole_dist / 2, -hole_dist / 2):
-        thread = hole23()
+        thread = hole23(length=50)
         thread = hole()(thread)
         diag_strut += translate((0, y, -strut_thick / 2))(thread)
     return diag_strut
@@ -362,17 +361,17 @@ def cage_base_plate(assemble=False):
     
     angle = -atan(cage_base/2/stabilizer_base)/math.pi*180 
      
-    plate = translate((0,stabilizer_base/2,0))(cube((cage_base+4,stabilizer_base-10,stabilizer_height), center=True))
+    plate = translate((0, stabilizer_base/2, 0))(cube((cage_base+4, stabilizer_base-10, stabilizer_height), center=True))
     
-    plate -= translate((-cage_base,stabilizer_base/2,0))(rotate((0,0,angle))(cube((cage_base,stabilizer_base,2*stabilizer_height), center=True)))
-    plate -= translate((cage_base,stabilizer_base/2,0))(rotate((0,0,-angle))(cube((cage_base,stabilizer_base,2*stabilizer_height), center=True)))
+    plate -= translate((-cage_base, stabilizer_base/2, 0))(rotate((0, 0, angle))(cube((cage_base, stabilizer_base, 2*stabilizer_height), center=True)))
+    plate -= translate((cage_base, stabilizer_base/2, 0))(rotate((0, 0, -angle))(cube((cage_base, stabilizer_base, 2*stabilizer_height), center=True)))
     
     for y in (15, 40):
-        plate += hole()(translate([0,y,5])(cylinder(d=12, center=True, h=10)))
-        plate += hole()(translate([0,y,-5 ])(cylinder(d=7.5, center=True, h=2*10)))
+        plate += hole()(translate([0, y, 5])(cylinder(d=12, center=True, h=10)))
+        plate += hole()(translate([0, y, -5])(cylinder(d=7.5, center=True, h=2*10)))
                
-    mount_strut = translate((0,25,10))(base_rods30(z_length = 30) )
-    mount_strut += translate((0,60,10))(rotate((0,0,180))(single_rod_clamp(z_length = 30)))
+    mount_strut = translate((0, 25, 10))(base_rods30(z_length=30))
+    mount_strut += translate((0, 60, 10))(rotate((0, 0, 180))(single_rod_clamp(z_length=30)))
 
     for y in (10, stabilizer_base-5):
         strut_thick = 3
@@ -388,8 +387,6 @@ def cage_base_plate(assemble=False):
 
 if __name__ == "__main__":
     import os
-    import subprocess
-    import time
 
     _fine = True
     render_STL = False

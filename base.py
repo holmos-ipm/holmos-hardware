@@ -99,13 +99,11 @@ def owis_holes(move_to_minus_y=False):
     return owis_holes
 
 
-def hole23():
+def hole23(r=1, length=10):
     """hole from below into z=0 plane, for M2.3 screws"""
-    hole = cylinder(1, h=10, center=True)
-    hole += translate([0, 0, -5])(
-        cylinder(r1=2, r2=1, h=2, center=True)
-    )
-    return translate([0, 0, 5])(hole)
+    hole = translate([0, 0, length/2])(cylinder(1, h=length, center=True))
+    hole += cylinder(r1=2*r, r2=r, h=2*r, center=True)
+    return (hole)
 
 
 if __name__ == '__main__':
