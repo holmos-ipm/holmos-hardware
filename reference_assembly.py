@@ -13,6 +13,7 @@ import Holmos
 import lens_mounts
 import mirror_mount
 import base
+from render_stl import render_scad_dir_to_stl_dir
 
 
 class HolmosComponent:
@@ -71,9 +72,13 @@ if __name__ == '__main__':
 
     if not os.path.exists("scad/complete_setup"):
         os.mkdir("scad/complete_setup")
+    if not os.path.exists("stl/complete_setup"):
+        os.mkdir("stl/complete_setup")
 
     print("cleaning output dirs...")
     for file in os.listdir("scad/complete_setup"):
+        os.remove(os.path.join("scad/complete_setup", file))
+    for file in os.listdir("stl/complete_setup"):
         os.remove(os.path.join("scad/complete_setup", file))
 
     for number, part in enumerate(part_list):
@@ -84,3 +89,5 @@ if __name__ == '__main__':
         print(filename)
         part_scad = part.part_func(assemble=False, **part.kwargs)
         scad_render_to_file(part_scad, os.path.join("scad/complete_setup/", filename), file_header=header)
+
+    render_scad_dir_to_stl_dir("scad/complete_setup", "stl/complete_setup")
