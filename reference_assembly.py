@@ -79,7 +79,7 @@ if __name__ == '__main__':
     for file in os.listdir("scad/complete_setup"):
         os.remove(os.path.join("scad/complete_setup", file))
     for file in os.listdir("stl/complete_setup"):
-        os.remove(os.path.join("scad/complete_setup", file))
+        os.remove(os.path.join("stl/complete_setup", file))
 
     for number, part in enumerate(part_list):
         name = part.name
