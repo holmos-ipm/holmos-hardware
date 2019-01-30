@@ -26,6 +26,9 @@ if __name__ == '__main__':
     scad_render_to_file(round_mount_light(20, opening_angle=None, stop_inner_diam=19),
                         "scad/objective_mount_edmund4x_simple.scad", file_header=header)
 
+    scad_render_to_file(round_mount_light(24, opening_angle=None, stop_inner_diam=21),
+                        "scad/objective_mount_edmund4x_plan.scad", file_header=header)
+
     scad_render_to_file(round_mount_light(20, opening_angle=0, cyl_length=40), "scad/light_tube.scad", file_header=header)
 
     # with stop - lenses
@@ -34,6 +37,6 @@ if __name__ == '__main__':
                         "scad/lens mount_d{:.1f}.scad".format(d), file_header=header)
 
     # without stop - lasers
-    for d in (12,):
+    for d in (12, 10):
         scad_render_to_file(round_mount_light(d, opening_angle=None), "scad/round_mount_d{:.1f}.scad".format(d), file_header=header)
 
