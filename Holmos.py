@@ -87,7 +87,7 @@ def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inne
     mount = base_plate + ring + connector
 
     if assemble:
-        mount = rotate((0, 180, 0))
+        mount = rotate((0, 180, 0))(mount)
 
     return mount
 
