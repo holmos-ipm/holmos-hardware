@@ -93,7 +93,7 @@ def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inne
 
 
 def rpi_cam_mount(assemble=False):
-    # https://www.raspberrypi.org/documentation/hardware/camera/rpi-cam-v2_1-dimensions.pdf
+    # https://www.raspberrypi.org/documentation/hardware/camera/mechanical/rpi_MECH_Camera2_2p1.pdf
     # 2016-11-30: printed; works. but: needs 4 spacers to keep the smd components on the back of the camera from touching the plate.
     rpi_thick = 3
 
@@ -122,8 +122,6 @@ def rpi_cam_mount(assemble=False):
         plate += strut
 
     mount = base_plate + plate
-    if assemble:
-        mount = rotate((0, 180, 0))(mount)
 
     return mount
 
@@ -132,10 +130,20 @@ def rpi_cam_plate(thick=5):
     "plate for raspberry pi camera, with camera at [0,0,0], facing down"
     rpi_holes_x_2 = 21 / 2
     rpi_holes_y = 12.5
+
     rpi_border = 2
-    rpi_plate = translate([0, rpi_holes_y / 2, thick / 2])(  # one pair of holes (and camera) are at y=0
-        rounded_plate([2 * rpi_holes_x_2 + 2 * rpi_border, rpi_holes_y + 2 * rpi_border, thick], rpi_border)
-    )
+    rpi_ysize = 23.86
+    rpi_ytop = 14.5
+    rpi_xsize = 25
+
+    gap_xsize = 11.5  # width for offset camera connector
+    gap_ysize = 20
+
+    plate_ycenter = rpi_ytop-rpi_ysize/2
+    rpi_plate = rounded_plate((rpi_xsize, rpi_ysize, thick), rpi_border)
+    rpi_plate = translate([0, plate_ycenter, thick / 2])(rpi_plate)  # one pair of holes (and camera) are at y=0
+    rpi_plate -= translate((0, plate_ycenter, thick/2))(rounded_plate((gap_xsize, gap_ysize, 2*thick), 1))
+
     for x in [rpi_holes_x_2, -rpi_holes_x_2]:
         for y in [0, rpi_holes_y]:
             hole = translate([x, y, 0])(hole23())
