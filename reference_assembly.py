@@ -10,6 +10,7 @@ import os
 
 from solid import *
 import Holmos
+import cage
 import lens_mounts
 import mirror_mount
 import base
@@ -28,8 +29,8 @@ class HolmosComponent:
         self.kwargs = kwargs  # keyword arguments for part_func
 
 
-part_list = (HolmosComponent(-35, Holmos.cage_base_plate),
-             HolmosComponent(50, Holmos.rpi_mount),
+part_list = (HolmosComponent(-35, cage.cage_base_plate),
+             HolmosComponent(50, cage.rpi_mount),
              HolmosComponent(0, Holmos.rpi_cam_mount),
              HolmosComponent(185, lens_mounts.round_mount_light, inner_diam=20, opening_angle=None, stop_inner_diam=19,
                              name="objective_lens_mount"),
@@ -39,7 +40,7 @@ part_list = (HolmosComponent(-35, Holmos.cage_base_plate),
              HolmosComponent(275, mirror_mount.crane_mirror),
              HolmosComponent(306, lens_mounts.round_mount_light, inner_diam=25.4, opening_angle=None, stop_inner_diam=23.4,
                              name="condensor_lens_mount"),
-             HolmosComponent(500, Holmos.cage_stabilizer),
+             HolmosComponent(500, cage.cage_stabilizer),
              HolmosComponent(550, lens_mounts.round_mount_light, inner_diam=12, opening_angle=None,
                              name="laser_mount")
              )
