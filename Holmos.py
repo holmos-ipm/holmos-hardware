@@ -19,7 +19,6 @@ from solid.utils import *  # pip install Solidpython
 import numpy
 
 from base import owis_holes, base, hole23, base_rods30
-from cage import rpi_mount, cage_stabilizer, cage_side_stabilizer, cage_base_plate
 from helpers import cyl_arc, hexagon, rounded_plate
 
 
@@ -294,16 +293,7 @@ if __name__ == "__main__":
 
     scad_render_to_file(rpi_cam_mount(), "scad/RPi-Cam.scad", file_header=header)
 
-    scad_render_to_file(cage_stabilizer(), "scad/Cage_Stabilizer.scad", file_header=header)
-    
-    scad_render_to_file(cage_side_stabilizer(), "scad/Cage_Side_Stabilizer.scad", file_header=header)
-    
-    scad_render_to_file(cage_base_plate(), "scad/Cage_Base_Plate.scad", file_header=header)
-    
     scad_render_to_file(tube_with_rodmount(), "scad/Tube_with_Rodmount.scad", file_header=header)
-
-    scad_render_to_file(rpi_mount(), "scad/rpi_mount.scad", file_header=header)
-
 
     #render_scad_dir_to_stl_dir("scad", "stl")
 

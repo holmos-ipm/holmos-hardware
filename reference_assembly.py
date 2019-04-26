@@ -91,4 +91,4 @@ if __name__ == '__main__':
         part_scad = part.part_func(assemble=False, **part.kwargs)
         scad_render_to_file(part_scad, os.path.join("scad/complete_setup/", filename), file_header=header)
 
-    render_scad_dir_to_stl_dir("scad/complete_setup", "stl/complete_setup")
+    #render_scad_dir_to_stl_dir("scad/complete_setup", "stl/complete_setup")

@@ -9,7 +9,7 @@ import math
 from math import atan
 
 import numpy
-from solid import rotate, translate, cube, cylinder, mirror, hole
+from solid import rotate, translate, cube, cylinder, mirror, hole, scad_render_to_file
 
 from Holmos import strut_with_holes
 from base import base, rods30_diag_third_rod, rods30_dist_third_rod, single_rod_clamp, base_rods30
@@ -18,6 +18,7 @@ from helpers import rounded_plate
 
 def rpi_mount(assemble=False):
     """Mount for Raspberry Pi using four screws.
+    Clipped to side of cage.
     Requires four cylindrical spacers.
     RPi is in (optical) XZ-plane.
     Plate is printed in (printer) XY plane
@@ -36,14 +37,13 @@ def rpi_mount(assemble=False):
 
     cross = rotate((0, 0, -strut_angle_deg))(diag_strut)
     cross += rotate((0, 0, strut_angle_deg))(diag_strut)
-    cross = translate((0, 0, -strut_thick/2))(cross)  # to z=0...-thick,
+    cross = translate((0, 0, +strut_thick/2))(cross)  # to z=0...-thick,
 
     mount_strut = cube((hole_sep_x, strut_width, strut_thick), center=True)
-    mount_strut = translate((0, 0, -strut_thick/2))(mount_strut)  # to z=0...-thick,
     baseplate = base(rod_sep=rods30_diag_third_rod)  # works for threads20 as well: superfluous kwargs are ignored.
-    mount_strut += rotate((-90, 0, 0))(translate((0, 20, 0))(baseplate))  # from optical-axis coords to our coords.
-    cross += translate((0, hole_sep_z/2, 0))(mount_strut)
-    cross += translate((0, -hole_sep_z/2, 0))(mount_strut)
+    mount_strut = rotate((-90, 0, 0))(translate((0, 20, 0))(baseplate))  # from optical-axis coords to our coords.
+    cross += translate((0, hole_sep_z/2-strut_width, 0))(mount_strut)
+    cross += translate((0, -hole_sep_z/2+strut_width, 0))(mount_strut)
 
     if assemble:
         cross = translate((20, -rods30_diag_third_rod/2-25, 0))(rotate((90, 0, -90))(cross))
@@ -138,3 +138,30 @@ def cage_base_plate(assemble=False):
     plate = translate((0, -25, 0))(mirror((0, 1, 0))(plate))
 
     return plate
+
+
+if __name__ == "__main__":
+    import os
+
+    _fine = True
+    render_STL = False
+
+    if _fine:
+        header = "$fa = 5;"  # minimum face angle
+        header += "$fs = 0.1;"  # minimum face size
+    else:
+        header = ""
+
+    if not os.path.exists("scad"):
+        os.mkdir("scad")
+
+    if not os.path.exists("stl"):
+        os.mkdir("stl")
+
+    scad_render_to_file(cage_stabilizer(), "scad/Cage_Stabilizer.scad", file_header=header)
+
+    scad_render_to_file(cage_side_stabilizer(), "scad/Cage_Side_Stabilizer.scad", file_header=header)
+
+    scad_render_to_file(cage_base_plate(), "scad/Cage_Base_Plate.scad", file_header=header)
+
+    scad_render_to_file(rpi_mount(), "scad/rpi_mount.scad", file_header=header)

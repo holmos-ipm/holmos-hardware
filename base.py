@@ -75,7 +75,7 @@ def single_rod_clamp(z_length=10):
 
     block = rounded_plate((2*diam_hole, mount_height, z_length), r=2)
 
-    block += hole()(cylinder(d=diam_hole, h=2*z_length, center=True))
+    block += hole()(cylinder(d=diam_hole, h=20*z_length, center=True))
     block += hole()(translate((-clamp_diff/2, -mount_height//2, 0))(cube((diam_hole-clamp_diff, 10, 2*z_length), center=True)))  # "tunnel" for rod to slide into clip
 
     return block()
