@@ -13,7 +13,6 @@ import Holmos
 import cage
 import lens_mounts
 import mirror_mount
-import base
 from render_stl import render_scad_dir_to_stl_dir
 
 
@@ -29,8 +28,9 @@ class HolmosComponent:
         self.kwargs = kwargs  # keyword arguments for part_func
 
 
-part_list = (HolmosComponent(-35, cage.cage_base_plate),
-             HolmosComponent(50, cage.rpi_mount),
+mount_bottom = False  # mount at bottom (screw into something) or top (hang from something)
+
+part_list = [HolmosComponent(50, cage.rpi_mount),
              HolmosComponent(0, Holmos.rpi_cam_mount),
              HolmosComponent(185, lens_mounts.round_mount_light, inner_diam=20, opening_angle=None, stop_inner_diam=19,
                              name="objective_lens_mount"),
@@ -43,7 +43,12 @@ part_list = (HolmosComponent(-35, cage.cage_base_plate),
              HolmosComponent(500, cage.cage_stabilizer),
              HolmosComponent(550, lens_mounts.round_mount_light, inner_diam=12, opening_angle=None,
                              name="laser_mount")
-             )
+             ]
+
+if mount_bottom:
+    part_list = [HolmosComponent(-35, cage.cage_base_plate, name="base_plate")] + part_list
+else:
+    part_list = [HolmosComponent(600, cage.board_hook, name="board_hook")] + part_list
 
 
 def holmos_full_assembly():
@@ -52,6 +57,7 @@ def holmos_full_assembly():
 
     assembly = translate((15, -25, h/2))(cylinder(d=6, h=h, center=True))
     for component in part_list:
+        print("adding {}".format(component.name))
         this_part = component.part_func(assemble=True, **component.kwargs)
         assembly += translate((0, 0, z0+component.z))(this_part)
     return assembly

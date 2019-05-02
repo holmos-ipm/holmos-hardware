@@ -12,7 +12,7 @@ import numpy
 from solid import rotate, translate, cube, cylinder, mirror, hole, scad_render_to_file
 
 from Holmos import strut_with_holes
-from base import base, rods30_diag_third_rod, rods30_dist_third_rod, single_rod_clamp, base_rods30
+import base
 from helpers import rounded_plate
 
 
@@ -39,14 +39,13 @@ def rpi_mount(assemble=False):
     cross += rotate((0, 0, strut_angle_deg))(diag_strut)
     cross = translate((0, 0, +strut_thick/2))(cross)  # to z=0...-thick,
 
-    mount_strut = cube((hole_sep_x, strut_width, strut_thick), center=True)
-    baseplate = base(rod_sep=rods30_diag_third_rod)  # works for threads20 as well: superfluous kwargs are ignored.
+    baseplate = base.base(rod_sep=base.rods30_diag_third_rod)  # works for threads20 as well: superfluous kwargs are ignored.
     mount_strut = rotate((-90, 0, 0))(translate((0, 20, 0))(baseplate))  # from optical-axis coords to our coords.
     cross += translate((0, hole_sep_z/2-strut_width, 0))(mount_strut)
     cross += translate((0, -hole_sep_z/2+strut_width, 0))(mount_strut)
 
     if assemble:
-        cross = translate((20, -rods30_diag_third_rod/2-25, 0))(rotate((90, 0, -90))(cross))
+        cross = translate((20, -base.rods30_diag_third_rod / 2 - 25, 0))(rotate((90, 0, -90))(cross))
 
     return cross
 
@@ -55,7 +54,7 @@ def cage_stabilizer(assemble=False):
     """stabilizer with 3 clamps for new HolMOS-Cage"""
 
     cage_base = 30
-    stabilizer_base = rods30_dist_third_rod
+    stabilizer_base = base.rods30_dist_third_rod
     stabilizer_height = 10
 
     angle = -atan(cage_base/2/stabilizer_base)/math.pi*180
@@ -68,8 +67,8 @@ def cage_stabilizer(assemble=False):
     for (dd,y) in ((20,20),(10,40)):
         stabilizer -= translate((0,y,0))(cylinder(d=dd, h=20, center=True))
 
-    mount_strut = translate((0,25,0))(base() )
-    mount_strut += translate((0,60,0))(rotate((0,0,180))(single_rod_clamp()))
+    mount_strut = translate((0,25,0))(base.base())
+    mount_strut += translate((0,60,0))(rotate((0,0,180))(base.single_rod_clamp()))
 
     stabilizer += mount_strut
 
@@ -82,7 +81,7 @@ def cage_side_stabilizer():
     """stabilizer for both sides of new HolMOS-Cage"""
 
     sep_z = 100
-    sep_x = rods30_diag_third_rod
+    sep_x = base.rods30_diag_third_rod
 
     strut_width = 10
     strut_thick = 3
@@ -100,7 +99,7 @@ def cage_side_stabilizer():
 
     mount_strut = cube((sep_x, strut_width, strut_thick), center=True)
     mount_strut = translate((0, 0, -strut_thick/2))(mount_strut)  # to z=0...-thick,
-    mount_strut += rotate((-90,0,0))(translate((0,20,0))(base_rods30(rod_sep=sep_x)))  # from optical-axis coords to our coords.
+    mount_strut += rotate((-90,0,0))(translate((0,20,0))(base.base_rods30(rod_sep=sep_x)))  # from optical-axis coords to our coords.
     cross += translate((0, sep_z/2, 0))(mount_strut)
     cross += translate((0, -sep_z/2, 0))(mount_strut)
 
@@ -125,8 +124,8 @@ def cage_base_plate(assemble=False):
         plate += hole()(translate([0, y, 5])(cylinder(d=12, center=True, h=10)))
         plate += hole()(translate([0, y, -5])(cylinder(d=7.5, center=True, h=2*10)))
 
-    mount_strut = translate((0, 25, 10))(base_rods30(z_length=30))
-    mount_strut += translate((0, 60, 10))(rotate((0, 0, 180))(single_rod_clamp(z_length=30)))
+    mount_strut = translate((0, 25, 10))(base.base_rods30(z_length=30))
+    mount_strut += translate((0, 60, 10))(rotate((0, 0, 180))(base.single_rod_clamp(z_length=30)))
 
     for y in (10, stabilizer_base-5):
         strut_thick = 3
@@ -138,6 +137,36 @@ def cage_base_plate(assemble=False):
     plate = translate((0, -25, 0))(mirror((0, 1, 0))(plate))
 
     return plate
+
+
+def board_hook(clip_z=30, hook_opening=18, assemble=False):
+    """
+    Hook for topmost end of cage - can be used to hang setup from a door, whiteboard, poster board, cabinet...
+    """
+    assert base.__rods30, "this only makes sense for rod-mount"
+
+    rod_clips = base.base_rods30(z_length=clip_z)
+    rod_clips = translate((0, 0, clip_z / 2))(rod_clips)  # start at z=0
+
+    hook_thick = 4
+    hook_width = 30
+    hook_z = 35
+
+    strut_height = 10
+
+    hook = translate((0, hook_opening - 20 + hook_thick / 2))(cube((hook_width, hook_thick, hook_z), True))
+    hook = translate((0, 0, hook_z/2))(hook)
+
+    strut = cube((hook_thick, hook_opening+.1, strut_height), True)
+    strut = translate((hook_width/2-hook_thick, (hook_opening-40)/2, strut_height/2))(strut)
+    strut += mirror((1, 0, 0))(strut)
+
+    assembly = rod_clips + hook + strut
+
+    if assemble:
+        return translate((0, -50, 0))(rotate((0, 180, 180))(assembly))
+    else:
+        return assembly
 
 
 if __name__ == "__main__":
@@ -165,3 +194,5 @@ if __name__ == "__main__":
     scad_render_to_file(cage_base_plate(), "scad/Cage_Base_Plate.scad", file_header=header)
 
     scad_render_to_file(rpi_mount(), "scad/rpi_mount.scad", file_header=header)
+
+    scad_render_to_file(board_hook(), "scad/wall_hook.scad", file_header=header)
