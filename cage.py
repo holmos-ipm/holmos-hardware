@@ -16,7 +16,7 @@ import base
 from helpers import rounded_plate
 
 
-def rpi_mount(assemble=False):
+def rpi_mount(assemble=False, hole_diam=3):
     """Mount for Raspberry Pi using four screws.
     Clipped to side of cage.
     Requires four cylindrical spacers.
@@ -33,7 +33,7 @@ def rpi_mount(assemble=False):
 
     strut_angle_deg = numpy.rad2deg(numpy.arctan(hole_sep_x/hole_sep_z))  # angle < 45°
 
-    diag_strut = strut_with_holes(hole_diagonal, strut_thick, strut_width)
+    diag_strut = strut_with_holes(hole_diagonal, strut_thick, strut_width, hole_diam=hole_diam)
 
     cross = rotate((0, 0, -strut_angle_deg))(diag_strut)
     cross += rotate((0, 0, strut_angle_deg))(diag_strut)
@@ -46,6 +46,12 @@ def rpi_mount(assemble=False):
 
     if assemble:
         cross = translate((20, -base.rods30_diag_third_rod / 2 - 25, 0))(rotate((90, 0, -90))(cross))
+    else:
+        spacer_height = 5
+        spacer = cylinder(d=2*hole_diam, h=spacer_height, center=True)
+        spacer -= cylinder(d=1.2*hole_diam, h=spacer_height+1, center=True)
+        for x in [15, 15 + 2.5*hole_diam, -15, -15 - 2.5 * hole_diam]:
+            cross += translate((x, 0, spacer_height/2))(spacer)
 
     return cross
 

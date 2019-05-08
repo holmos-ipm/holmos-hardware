@@ -90,7 +90,7 @@ def owis_holes(move_to_minus_y=False):
     :param move_to_minus_y: Move holes to z=-20, i.e. for optical axis at z=0
     :return:
     """
-    hole = hole23()
+    hole = sunk_hole()
     owis_holes = translate([-10, 0, 0])(hole) + translate([10, 0, 0])(hole)  # z=0 is outside plane
 
     if move_to_minus_y:
@@ -102,11 +102,16 @@ def owis_holes(move_to_minus_y=False):
     return owis_holes
 
 
-def hole23(r=1, length=10):
-    """hole from below into z=0 plane, for M2.3 screws"""
-    hole = translate([0, 0, length/2])(cylinder(1, h=length, center=True))
-    hole += cylinder(r1=2*r, r2=r, h=2*r, center=True)
-    return (hole)
+def sunk_hole(r=1, length=10):
+    """
+    Hole from below into z=0 plane. Countersunk: larger diameter at beginning, for easier insertion.
+    :param r: Default: r=1 for M2.3 screws
+    :param length:
+    :return:
+    """
+    hole = translate([0, 0, length/2])(cylinder(r, h=length, center=True))
+    hole += cylinder(r1=2*r, r2=r, h=1.4*r, center=True)
+    return hole
 
 
 def test_rod_clamp_tightness(tightnesses):

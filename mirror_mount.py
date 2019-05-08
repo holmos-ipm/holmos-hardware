@@ -11,7 +11,7 @@ import numpy
 
 from solid import *
 
-from base import base, hole23, single_rod_clamp
+from base import base, sunk_hole, single_rod_clamp
 from helpers import rounded_plate
 
 
@@ -33,7 +33,7 @@ def crane_45deg_mirror():
 
     mirror_plate_threads = mirror_plate_blank
     for (x,y) in itertools.product((1, -1), (1,-1)):
-        thread = hole()(rotate((0, 180, 0))(hole23()))  # from above into z=0
+        thread = hole()(rotate((0, 180, 0))(sunk_hole()))  # from above into z=0
         mirror_plate_threads += translate((x*screw_dist_from_center, y*screw_dist_from_center, thick/2))(thread)
 
     mirror_plate_threads = rotate((0, mirror_angle_deg, 0))(mirror_plate_threads)

@@ -18,7 +18,7 @@ If assemble=True, return the part so that the optical axis is at z=0, with laser
 from solid.utils import *  # pip install Solidpython
 import numpy
 
-from base import owis_holes, base, hole23, base_rods30
+from base import owis_holes, base, sunk_hole, base_rods30
 from helpers import cyl_arc, hexagon, rounded_plate
 from render_stl import render_scad_dir_to_stl_dir
 
@@ -147,16 +147,16 @@ def rpi_cam_plate(thick=5):
 
     for x in [rpi_holes_x_2, -rpi_holes_x_2]:
         for y in [0, rpi_holes_y]:
-            hole = translate([x, y, 0])(hole23())
+            hole = translate([x, y, 0])(sunk_hole())
             rpi_plate -= hole
     return rpi_plate
 
 
-def strut_with_holes(hole_dist, strut_thick, strut_width):
+def strut_with_holes(hole_dist, strut_thick, strut_width, hole_diam=2):
     """flat strut with two holes at y=+-hole_dist"""
     diag_strut = rounded_plate((strut_width, hole_dist + strut_width, strut_thick), strut_width / 2)
     for y in (hole_dist / 2, -hole_dist / 2):
-        thread = hole23(length=50)
+        thread = sunk_hole(length=50, r=hole_diam/2)
         thread = hole()(thread)
         diag_strut += translate((0, y, -strut_thick / 2))(thread)
     return diag_strut
