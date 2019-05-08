@@ -20,6 +20,7 @@ import numpy
 
 from base import owis_holes, base, hole23, base_rods30
 from helpers import cyl_arc, hexagon, rounded_plate
+from render_stl import render_scad_dir_to_stl_dir
 
 
 def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inner_diam=None, cyl_length=10, assemble=False):
@@ -293,9 +294,8 @@ if __name__ == "__main__":
 
     scad_render_to_file(rpi_cam_mount(), "scad/RPi-Cam.scad", file_header=header)
 
-    scad_render_to_file(tube_with_rodmount(), "scad/Tube_with_Rodmount.scad", file_header=header)
-
-    #render_scad_dir_to_stl_dir("scad", "stl")
+    if render_STL:
+        render_scad_dir_to_stl_dir("scad", "stl")
 
 
 

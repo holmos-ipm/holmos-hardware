@@ -23,6 +23,7 @@ __config = configparser.ConfigParser()
 __config.read("global_settings.ini")
 __threads20 = __config.getboolean("mount", "Threads20mm")
 __rods30 = __config.getboolean("mount", "Rods6mmBy30mm")
+__rods30_tightness = __config.getfloat("mount", "Rods6mm_tightness")
 
 rods30_dist_third_rod = 60  # distance of third rod behind two main rods (orthogonal distance)
 rods30_diag_third_rod = (15**2 + rods30_dist_third_rod**2)**.5
@@ -65,10 +66,12 @@ def base_rods30(rod_sep=30, z_length=10):
     return base
 
 
-def single_rod_clamp(z_length=10):
+def single_rod_clamp(z_length=10, tightness=__rods30_tightness):
     """single clamp to attach to a z-tube.
-    The tube is at xy = (0,5), so that this clamp attaches to things at y=0...height"""
-    diam_hole = 6
+    The tube is at xy = (0,5), so that this clamp attaches to things at y=0...height
+    :param tightness: diameter reduction of clamp. larger values give tighter fit."""
+
+    diam_hole = 6 - tightness
     clamp_diff = .5  # how much smaller is the clamp, i.e. how far does it need to bend?
 
     mount_height = 10  # height (y) of mount
@@ -106,7 +109,39 @@ def hole23(r=1, length=10):
     return (hole)
 
 
+def test_rod_clamp_tightness(tightnesses):
+    """
+    A series of clamps with different tightnesses, to find best value for given printer/rod combination
+    :param tightnesses: list of tightnesses to try
+    :return: object
+    Printed 2019-08-05 with [0, 0.05, 0.10]. Works. 0.05 is barely noticeable; 0.10 definitely tighter.
+    """
+    spacing = 15
+    base_height = 20
+
+    n_tight = len(tightnesses)
+    width = spacing * n_tight
+    assembly = translate((width/2, base_height/2, 0))(cube((width, base_height, 10), center=True))
+    for n, tight in enumerate(tightnesses):
+        clamp = (single_rod_clamp(tightness=tight))  # add clamp with varying tightness
+        label = rotate((0, 0, 90))(
+                linear_extrude(height=.5, center=True)(
+                    text("{:.2f}".format(tight), valign="center", halign="left", size=5., segments=1,
+                         font="Liberation Sans:style=Bold")
+                )
+            )
+        label = translate((.5, base_height/2, 5))(label)
+        assembly += translate(((n+.5)*spacing, -5, 0))(clamp + label)
+
+    return assembly
+
+
 if __name__ == '__main__':
+    header = "$fa = 5;"  # minimum face angle
+    header += "$fs = 0.1;"  # minimum face size
+
     upper = cube((40, 40, 10), center=True)
 
-    scad_render_to_file(upper+base(), "scad/tests/base_demo.scad")
+    scad_render_to_file(upper+base(), "scad/tests/base_demo.scad", file_header=header)
+
+    scad_render_to_file(test_rod_clamp_tightness([0, .05, .1]), "scad/tests/test_clamp_tightness.scad", file_header=header)

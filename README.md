@@ -26,3 +26,7 @@ Run the file, and it will generate a scad file showing the entire assembly (exce
 In addition, a folder full of the individual parts is generated.
 Print those parts, and assemble them at the positions given, and you should have a good starting point.
 
+## Tweaking
+How tight the clips become depends on your printer, printer settings and the rods you are using.
+`base.test_rod_clamp_tightness()` can be used to generate a test object with several clips.
+
