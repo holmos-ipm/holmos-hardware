@@ -148,6 +148,7 @@ def cage_base_plate(assemble=False):
 def board_hook(clip_z=30, hook_opening=18, assemble=False):
     """
     Hook for topmost end of cage - can be used to hang setup from a door, whiteboard, poster board, cabinet...
+    2019-05-13 - printed, works well. But: real-life poster board is one inch thick.
     """
     assert base.__rods30, "this only makes sense for rod-mount"
 

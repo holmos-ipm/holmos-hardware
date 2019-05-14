@@ -29,7 +29,7 @@ if __name__ == '__main__':
     scad_render_to_file(round_mount_light(24, opening_angle=None, stop_inner_diam=21),
                         "scad/objective_mount_edmund4x_plan.scad", file_header=header)
 
-    scad_render_to_file(round_mount_light(20, opening_angle=0, cyl_length=40), "scad/light_tube.scad", file_header=header)
+    scad_render_to_file(round_mount_light(20, opening_angle=0, cyl_length=40, ring_thick=2), "scad/light_tube.scad", file_header=header)
 
     # with stop - lenses
     for d in (25.4, 20, 16.5):
