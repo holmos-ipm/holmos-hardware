@@ -47,14 +47,12 @@ def crane_45deg_mirror():
     return plate
 
 
-def crane_mirror(assemble=True):
+def crane_mirror(assemble=True, mirror_offset_x=25, crane_only=False):
     """Mount for 45deg movable mirror
     assemble=True: put things where they're supposed to go
     assemble=False: put things on printer bed"""
     thick = 10
-    mirror_offset_x = 25  # TODO: calc
     dist_to_cam = 200
-    #dist_to_cam = 30
 
     arm_width = 5.5
     mirror_z = 17
@@ -80,14 +78,15 @@ def crane_mirror(assemble=True):
     plate += clip_arm
     plate += mirror((0, 1, 0))(clip_arm)
 
-    mirror_intermediate = crane_mirror_intermediate(rod_thick, arm_width, rod_to_mirror, assemble)
+    if not crane_only:
+        mirror_intermediate = crane_mirror_intermediate(rod_thick, arm_width, rod_to_mirror, assemble)
 
-    if assemble:
-        plate += translate((rod_x, 0, rod_z))(
-            rotate((0, -numpy.rad2deg(mirror_angle_rad), 0))(mirror_intermediate)
-        )
-    else:
-        plate += translate((mirror_offset_x + 30, 0, -thick/2+rod_thick/2))(mirror_intermediate)
+        if assemble:
+            plate += translate((rod_x, 0, rod_z))(
+                rotate((0, -numpy.rad2deg(mirror_angle_rad), 0))(mirror_intermediate)
+            )
+        else:
+            plate += translate((mirror_offset_x + 30, 0, -thick/2+rod_thick/2))(mirror_intermediate)
 
     plate += base()
     if assemble:
@@ -149,8 +148,8 @@ if __name__ == '__main__':
     else:
         header = ""
 
-    scad_render_to_file(crane_45deg_mirror(), "scad/crane_owis_45deg_mirror.scad", file_header=header)
-
     scad_render_to_file(crane_mirror(True), "scad/crane_mirror_assembled.scad", file_header=header)
 
     scad_render_to_file(crane_mirror(False), "scad/crane_mirror_printable.scad", file_header=header)
+
+    scad_render_to_file(crane_mirror(False, mirror_offset_x=0, crane_only=True), "scad/crane_mirror_storage.scad", file_header=header)
