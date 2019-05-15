@@ -57,7 +57,7 @@ def rpi_mount(assemble=False, hole_diam=3):
 
 
 def cage_stabilizer(assemble=False):
-    """stabilizer with 3 clamps for new HolMOS-Cage"""
+    """stabilizer with 3 clamps for HolMOS-cage"""
 
     cage_base = 30
     stabilizer_base = base.rods30_dist_third_rod
@@ -70,17 +70,22 @@ def cage_stabilizer(assemble=False):
     stabilizer -= translate((-cage_base,stabilizer_base/2,0))(rotate((0,0,angle))(cube((cage_base,stabilizer_base,2*stabilizer_height), center=True)))
     stabilizer -= translate((cage_base,stabilizer_base/2,0))(rotate((0,0,-angle))(cube((cage_base,stabilizer_base,2*stabilizer_height), center=True)))
 
-    for (dd,y) in ((20,20),(10,40)):
-        stabilizer -= translate((0,y,0))(cylinder(d=dd, h=20, center=True))
+    stabilizer = translate((0, -25, 0))(stabilizer)
 
-    mount_strut = translate((0,25,0))(base.base())
-    mount_strut += translate((0,60,0))(rotate((0,0,180))(base.single_rod_clamp()))
+    for (dd, y) in ((25, 0), (10, 21)):
+        stabilizer -= translate((0, y, 0))(cylinder(d=dd, h=20, center=True))
 
-    stabilizer += mount_strut
-
-    stabilizer = translate((0, -25, 0))(mirror((0, 1, 0))(stabilizer))
+    stabilizer += cage_3_clips()
 
     return stabilizer
+
+
+def cage_3_clips(z_length=10):
+    """3 clips arranged in proper distances for cage"""
+    mount_strut = base.base(z_length=z_length)
+    third_rod_y = base.rods30_dist_third_rod-25  # main pair of rods is at y=-25
+    mount_strut += translate((0, third_rod_y, 0))(rotate((0, 0, 180))(base.single_rod_clamp(z_length)))
+    return mount_strut
 
 
 def cage_side_stabilizer():
@@ -130,17 +135,14 @@ def cage_base_plate(assemble=False):
         plate += hole()(translate([0, y, 5])(cylinder(d=12, center=True, h=10)))
         plate += hole()(translate([0, y, -5])(cylinder(d=7.5, center=True, h=2*10)))
 
-    mount_strut = translate((0, 25, 10))(base.base_rods30(z_length=30))
-    mount_strut += translate((0, 60, 10))(rotate((0, 0, 180))(base.single_rod_clamp(z_length=30)))
-
     for y in (10, stabilizer_base-5):
         strut_thick = 3
         strut = strut_with_holes(hole_dist=40, strut_thick=strut_thick, strut_width=10)
         plate += translate((0, y, (strut_thick-10)/2))(rotate((0, 0, 90))(strut))
 
-    plate += mount_strut
+    plate = translate((0, -25, 0))(plate)
 
-    plate = translate((0, -25, 0))(mirror((0, 1, 0))(plate))
+    plate += translate((0,0,10))(cage_3_clips(z_length=30))
 
     return plate
 
@@ -176,6 +178,13 @@ def board_hook(clip_z=30, hook_opening=18, assemble=False):
         return assembly
 
 
+def cage_circumference(d_outer=80):
+    """Circle to fit cage ends, e.g. to transport cage inside a cylindrical tube"""
+    clamp = base.single_rod_clamp()
+
+    return clamp
+
+
 if __name__ == "__main__":
     import os
 
@@ -203,3 +212,5 @@ if __name__ == "__main__":
     scad_render_to_file(rpi_mount(), "scad/rpi_mount.scad", file_header=header)
 
     scad_render_to_file(board_hook(), "scad/wall_hook.scad", file_header=header)
+
+    scad_render_to_file(cage_circumference(), "scad/cage_circumference.scad", file_header=header)
