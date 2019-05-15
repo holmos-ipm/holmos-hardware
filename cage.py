@@ -80,12 +80,19 @@ def cage_stabilizer(assemble=False):
     return stabilizer
 
 
-def cage_3_clips(z_length=10):
-    """3 clips arranged in proper distances for cage"""
-    mount_strut = base.base(z_length=z_length)
+def cage_3_clips(z_length=10, inside=False):
+    """3 clips arranged in proper distances for cage, aligned to optical axis at 0,0."""
     third_rod_y = base.rods30_dist_third_rod-25  # main pair of rods is at y=-25
-    mount_strut += translate((0, third_rod_y, 0))(rotate((0, 0, 180))(base.single_rod_clamp(z_length)))
-    return mount_strut
+
+    clip_pair = base.base(z_length=z_length)
+    single_clip = base.single_rod_clamp(z_length)
+
+    if inside:
+        clip_pair = translate((0, -50, 0))(mirror((0, 1, 0))(clip_pair))  # clip at 25, needs to be moved back.
+        single_clip = mirror((0, 1, 0))(single_clip)
+
+    single_clip = translate((0, third_rod_y, 0))(rotate((0, 0, 180))(single_clip))
+    return clip_pair + single_clip
 
 
 def cage_side_stabilizer():
@@ -178,11 +185,15 @@ def board_hook(clip_z=30, hook_opening=18, assemble=False):
         return assembly
 
 
-def cage_circumference(d_outer=80):
+def cage_circumference(d_outer=80.5):
     """Circle to fit cage ends, e.g. to transport cage inside a cylindrical tube"""
-    clamp = base.single_rod_clamp()
+    clamp = translate((0, 0, 5))(cage_3_clips(inside=True))  # bottom at z=0
 
-    return clamp
+    circle = cylinder(d=d_outer, h=10)
+    circle -= translate((0, 0, 2))(cylinder(d=d_outer-4, h=20))  # relative diameter: wall thickness
+    circle -= translate((0, 0, -2))(cylinder(d=base.rods30_dist_third_rod+7, h=20))  # absolute diameter: contact to clips.
+
+    return clamp + circle
 
 
 if __name__ == "__main__":
