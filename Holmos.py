@@ -23,7 +23,8 @@ from helpers import cyl_arc, hexagon, rounded_plate
 from render_stl import render_scad_dir_to_stl_dir
 
 
-def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inner_diam=None, cyl_length=10, assemble=False):
+def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inner_diam=None, cyl_length=10,
+                      clip_length=10, assemble=False):
     """
     mount for cylinder centered on optical axis (z). If opening_angle is None, clamping tabs are added.
     defaults: mount for Kosmos objective
@@ -49,28 +50,28 @@ def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inne
             rounded_plate([30, 10, base_thick], 4)
         )
     )
-    base_plate += base()
+    base_plate += translate((0, 0, (clip_length-10)/2))(base(z_length=clip_length))
 
     outer_diam = inner_diam+2 * ring_thick
-    ring = cyl_arc(r=outer_diam/2, h=cyl_length, a0=opening_angle, a1=-opening_angle)
-    ring = translate((0,0, (cyl_length-z_thick)/2))(ring)
+    ring = cyl_arc(r=outer_diam/2, h=cyl_length, a0=90+opening_angle, a1=90-opening_angle)
+    ring = translate((0, 0, (cyl_length-z_thick)/2))(ring)
     if stop_inner_diam is None:
         ring -= cylinder(d=inner_diam, h=2*cyl_length, center=True)
     else:
         ring -= cylinder(d=stop_inner_diam, h=2*cyl_length, center=True)
         ring -= translate((0,0,z_think_inner))(cylinder(d=inner_diam, h=z_thick, center=True))
 
-    if do_clamp:  # clamps with holes extending towards +x
+    if do_clamp:  # clamps with holes extending towards +y
         hex_diam = 5.5  # M3 nut
-        clamp_extension = hex_diam + 1
+        clamp_extension = hex_diam + 2
         hole_diam = 3.5
         clamp_length = ring_thick+clamp_extension
         single_clamp = rounded_plate((clamp_length, z_thick, ring_thick), True)
         through_nut_hole = cylinder(d=hole_diam, h=2*ring_thick, center=True)
-        through_nut_hole += translate((0,0, ring_thick/2))(hexagon(hex_diam, ring_thick/3))
+        through_nut_hole += translate((0, 0, ring_thick/2))(hexagon(hex_diam, ring_thick/3))
         single_clamp -= translate([ring_thick/2, 0, 0])(through_nut_hole)
-        ring += translate([inner_diam/2 + clamp_length/2, ring_thick, 0])(rotate([-90, 0, 0])(single_clamp))
-        ring += translate([inner_diam/2 + clamp_length/2, -ring_thick, 0])(rotate([90, 0, 0])(single_clamp))
+        ring += translate([ring_thick, inner_diam/2 + clamp_length/2, 0])(rotate([90, 0, 90])(single_clamp))
+        ring += translate([-ring_thick, inner_diam/2 + clamp_length/2, 0])(rotate([-90, 0, 90])(single_clamp))
 
     connector_h = (40 - inner_diam) / 2
     connector_yc = inner_diam / 2 + connector_h / 2

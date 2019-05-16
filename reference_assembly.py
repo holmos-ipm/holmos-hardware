@@ -32,7 +32,8 @@ mount_bottom = False  # mount at bottom (screw into something) or top (hang from
 
 part_list = [HolmosComponent(50, cage.rpi_mount),
              HolmosComponent(0, Holmos.rpi_cam_mount),
-             HolmosComponent(185, lens_mounts.round_mount_light, inner_diam=20, opening_angle=None, stop_inner_diam=19,
+             HolmosComponent(185, lens_mounts.round_mount_light,
+                             inner_diam=20, opening_angle=None, stop_inner_diam=19, clip_length=20,
                              name="objective_lens_mount"),
              HolmosComponent(216, Holmos.slide_holder),
              HolmosComponent(252, Holmos.slide_holder, angle_deg=45,
