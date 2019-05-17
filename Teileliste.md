@@ -12,7 +12,7 @@
 
 * Normteile 5€
 
-* Laser [38€ Laserfuchs](https://www.laserfuchs.de/de/punktlaser/dd635-1-512x34)
+* Laser [38€ Laserfuchs](https://www.laserfuchs.de/de/punktlaser/dd635-1-512x34) oder [22€ Laserfuchs](https://www.laserfuchs.de/de/punktlaser/doe-qd635-0-4-610x22-adj)
 * Objektiv [55 € edmund optics](https://www.edmundoptics.de/p/4x-din-achromatic-commercial-grade-objective/5381/)
 
 
