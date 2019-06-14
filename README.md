@@ -1,6 +1,9 @@
-# holmos-hardware
+# Holmos - Hardware
 
-Hardware for holmos - mostly Solidpython to generate scad
+Holmos is a digital holographic microscope.
+The [software repository](https://github.com/holmos-ipm/holmos-rpi/) has more information about the project.
+
+This repository contains instructions to build your own copy of the setup, and files describing the 3D-printed parts.
 
 ## Requirements
 ### Software
@@ -12,8 +15,8 @@ To get scad files:
 To convert from scad to stl:
 * [OpenSCAD](http://www.openscad.org)
 
-And finally, you'll need to print the .stl files. 
-We developed this using Ultimaker printers and their [Cura](https://ultimaker.com/en/products/ultimaker-cura-software) software, 
+And finally, you'll need to print the .stl files.
+We developed this using Ultimaker printers and their [Cura](https://ultimaker.com/en/products/ultimaker-cura-software) software,
 but any other printer should work.
 
 ### Purchased parts
@@ -21,7 +24,7 @@ See [Teileliste](Teileliste.md)
 The steel rods need to be 600 mm long if you are using the reference design.
 
 ## What to print, and where to put it
-Start by looking at `reference_assembly.py`. 
+Start by looking at `reference_assembly.py`.
 It contains a list of parts, and their `z` positions along the optical axis.
 Run the file, and it will generate a scad file showing the entire assembly (except rails).
 In addition, a folder full of the individual parts is generated.
@@ -47,4 +50,3 @@ It can be stored in a `crane_mirror(mirror_offset_x=0, crane_only=True)` for tra
 ## Tweaking
 How tight the clips become depends on your printer, printer settings and the rods you are using.
 `base.test_rod_clamp_tightness()` can be used to generate a test object with several clips.
-
