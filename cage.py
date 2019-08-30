@@ -13,6 +13,7 @@ from solid import rotate, translate, cube, cylinder, mirror, hole, scad_render_t
 
 from Holmos import strut_with_holes
 import base
+from file_tools import safe_mkdir
 from helpers import rounded_plate
 
 
@@ -208,11 +209,7 @@ if __name__ == "__main__":
     else:
         header = ""
 
-    if not os.path.exists("scad"):
-        os.mkdir("scad")
-
-    if not os.path.exists("stl"):
-        os.mkdir("stl")
+    safe_mkdir("scad")
 
     scad_render_to_file(cage_stabilizer(), "scad/Cage_Stabilizer.scad", file_header=header)
 

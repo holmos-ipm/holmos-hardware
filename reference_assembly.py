@@ -13,6 +13,7 @@ import Holmos
 import cage
 import lens_mounts
 import mirror_mount
+from file_tools import safe_mkdir
 from render_stl import render_scad_dir_to_stl_dir
 
 
@@ -39,7 +40,8 @@ part_list = [HolmosComponent(50, cage.rpi_mount),
              HolmosComponent(252, Holmos.slide_holder, angle_deg=45,
                              name="beamsplitter_mount"),
              HolmosComponent(275, mirror_mount.crane_mirror),
-             HolmosComponent(306, lens_mounts.round_mount_light, inner_diam=25.4, opening_angle=None, stop_inner_diam=23.4,
+             HolmosComponent(306, lens_mounts.round_mount_light, inner_diam=25.4, opening_angle=None,
+                             stop_inner_diam=23.4,
                              name="condensor_lens_mount"),
              HolmosComponent(500, cage.cage_stabilizer),
              HolmosComponent(550, lens_mounts.round_mount_light, inner_diam=12, opening_angle=None,
@@ -78,10 +80,7 @@ if __name__ == '__main__':
 
     scad_render_to_file(holmos_full_assembly(), "scad/full_assembly.scad", file_header=header)
 
-    if not os.path.exists("scad/complete_setup"):
-        os.mkdir("scad/complete_setup")
-    if not os.path.exists("stl/complete_setup"):
-        os.mkdir("stl/complete_setup")
+    safe_mkdir("scad/complete_setup", "stl/complete_setup")
 
     print("cleaning output dirs...")
     for file in os.listdir("scad/complete_setup"):

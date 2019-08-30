@@ -12,6 +12,7 @@ import numpy
 from solid import *
 
 from base import base, sunk_hole, single_rod_clamp
+from file_tools import safe_mkdir
 from helpers import rounded_plate
 
 
@@ -148,8 +149,9 @@ if __name__ == '__main__':
     else:
         header = ""
 
+    safe_mkdir("scad")
+
     scad_render_to_file(crane_mirror(True), "scad/crane_mirror_assembled.scad", file_header=header)
-
     scad_render_to_file(crane_mirror(False), "scad/crane_mirror_printable.scad", file_header=header)
-
-    scad_render_to_file(crane_mirror(False, mirror_offset_x=0, crane_only=True), "scad/crane_mirror_storage.scad", file_header=header)
+    scad_render_to_file(crane_mirror(False, mirror_offset_x=0, crane_only=True), "scad/crane_mirror_storage.scad",
+                        file_header=header)

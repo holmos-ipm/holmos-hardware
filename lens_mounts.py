@@ -7,6 +7,7 @@ Created on 08.01.2019
 from solid import scad_render_to_file
 
 from Holmos import round_mount_light
+from file_tools import safe_mkdir
 
 if __name__ == '__main__':
 
@@ -22,6 +23,8 @@ if __name__ == '__main__':
 
     header = "$fa = 5;"  # minimum face angle
     header += "$fs = 0.1;"  # minimum face size
+
+    safe_mkdir("scad")
 
     scad_render_to_file(round_mount_light(20, opening_angle=None, stop_inner_diam=19),
                         "scad/objective_mount_edmund4x_simple.scad", file_header=header)
