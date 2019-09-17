@@ -216,7 +216,7 @@ def slide_holder(assemble=True, angle_deg=0):
         assembly = rotate((0, -angle_deg, 0))(base_plate + clamps)
 
     else:  # separate for printing
-        clamp = translate([7, 40, (clamp_width-10)/2])(rotate((0,90,0))(clamp))
+        clamp = translate([30, 0, (clamp_width-10)/2])(rotate((0, 90, 0))(clamp))
         clamps = clamp + mirror((1, 0, 0))(clamp)
         base_plate = rotate((-90, 0, 0))(translate((0, 20, 0))(base_plate))
         assembly = base_plate + clamps
