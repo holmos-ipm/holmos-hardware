@@ -186,15 +186,22 @@ def board_hook(clip_z=30, hook_opening=18, assemble=False):
         return assembly
 
 
-def cage_circumference(d_outer=80.5, assemble=None):
+def cage_circumference(d_outer=80.5, wall_thick=2, h=10,assemble=None):
     """Circle to fit cage ends, e.g. to transport cage inside a cylindrical tube"""
     clamp = translate((0, 0, 5))(cage_3_clips(inside=True))  # bottom at z=0
+    circ_x_at_clamp = ((d_outer/2)**2 - 30**2)**.5
+    back_face = cube((2*circ_x_at_clamp, wall_thick, h), center=True)
+    back_face = translate((0, -30+wall_thick/2, h/2))(back_face)
 
-    circle = cylinder(d=d_outer, h=10)
-    circle -= translate((0, 0, 2))(cylinder(d=d_outer-4, h=20))  # relative diameter: wall thickness
-    circle -= translate((0, 0, -2))(cylinder(d=base.rods30_dist_third_rod+7, h=20))  # absolute diameter: contact to clips.
+    circle = cylinder(d=d_outer, h=h)
+    circle -= translate((0, 0, 2))(cylinder(d=d_outer-2*wall_thick, h=2*h))  # relative diameter: wall thickness
+    circle -= translate((0, 0, -2))(cylinder(d=base.rods30_dist_third_rod+7, h=2*h))  # absolute diameter: contact to clips.
 
-    return clamp + circle
+    # clear space past -y of clamps, so that cage can rest against wall when used with hook.
+    helper_block_y = 30
+    circle -= translate((0, -20-10-helper_block_y/2, 0))(cube((100, helper_block_y, 100), center=True))
+
+    return clamp + circle + back_face
 
 
 if __name__ == "__main__":
