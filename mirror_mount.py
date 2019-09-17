@@ -149,9 +149,9 @@ if __name__ == '__main__':
     else:
         header = ""
 
-    safe_mkdir("scad")
+    safe_mkdir("scad/misc")
 
-    scad_render_to_file(crane_mirror(True), "scad/crane_mirror_assembled.scad", file_header=header)
-    scad_render_to_file(crane_mirror(False), "scad/crane_mirror_printable.scad", file_header=header)
-    scad_render_to_file(crane_mirror(False, mirror_offset_x=0, crane_only=True), "scad/crane_mirror_storage.scad",
+    scad_render_to_file(crane_mirror(True), "scad/misc/crane_mirror_assembled.scad", file_header=header)
+    scad_render_to_file(crane_mirror(False), "scad/misc/crane_mirror_printable.scad", file_header=header)
+    scad_render_to_file(crane_mirror(False, mirror_offset_x=0, crane_only=True), "scad/misc/crane_mirror_storage.scad",
                         file_header=header)

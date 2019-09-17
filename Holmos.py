@@ -284,17 +284,17 @@ if __name__ == "__main__":
     else:
         header = ""
 
-    safe_mkdir("scad")
+    safe_mkdir("scad/misc")
 
-    scad_render_to_file(slide_holder(False), "scad/slide-holder.scad", file_header=header)
-    scad_render_to_file(slide_holder(True), "scad/slide-holder-assembled.scad", file_header=header)
-    scad_render_to_file(slide_holder(False, 45), "scad/beamsplitter-holder.scad", file_header=header)
+    scad_render_to_file(slide_holder(False), "scad/misc/slide-holder.scad", file_header=header)
+    scad_render_to_file(slide_holder(True), "scad/misc/slide-holder-assembled.scad", file_header=header)
+    scad_render_to_file(slide_holder(False, 45), "scad/misc/beamsplitter-holder.scad", file_header=header)
 
-    scad_render_to_file(rpi_cam_mount(), "scad/RPi-Cam.scad", file_header=header)
+    scad_render_to_file(rpi_cam_mount(), "scad/misc/RPi-Cam.scad", file_header=header)
 
     if render_STL:
         safe_mkdir("stl")
-        render_scad_dir_to_stl_dir("scad", "stl")
+        render_scad_dir_to_stl_dir("scad/misc", "stl")
 
 
 

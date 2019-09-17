@@ -148,9 +148,9 @@ if __name__ == '__main__':
 
     upper = cube((40, 40, 10), center=True)
 
-    safe_mkdir("scad/tests")
+    safe_mkdir("scad/misc")
 
-    scad_render_to_file(upper+base(), "scad/tests/base_demo.scad", file_header=header)
-    scad_render_to_file(base_rods30(z_length=100), "scad/label_100.scad", file_header=header)  # Long plate for sticker
-    scad_render_to_file(test_rod_clamp_tightness([0, .05, .1]), "scad/tests/test_clamp_tightness.scad",
+    scad_render_to_file(upper+base(), "scad/misc/base_demo.scad", file_header=header)
+    scad_render_to_file(base_rods30(z_length=100), "scad/misc/label_100.scad", file_header=header)  # Long plate for sticker
+    scad_render_to_file(test_rod_clamp_tightness([0, .05, .1]), "scad/misc/test_clamp_tightness.scad",
                         file_header=header)

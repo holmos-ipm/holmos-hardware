@@ -224,16 +224,16 @@ if __name__ == "__main__":
     else:
         header = ""
 
-    safe_mkdir("scad")
+    safe_mkdir("scad/misc")
 
-    scad_render_to_file(cage_stabilizer(), "scad/Cage_Stabilizer.scad", file_header=header)
+    scad_render_to_file(cage_stabilizer(), "scad/misc/Cage_Stabilizer.scad", file_header=header)
 
-    scad_render_to_file(cage_side_stabilizer(), "scad/Cage_Side_Stabilizer.scad", file_header=header)
+    scad_render_to_file(cage_side_stabilizer(), "scad/misc/Cage_Side_Stabilizer.scad", file_header=header)
 
-    scad_render_to_file(cage_base_plate(), "scad/Cage_Base_Plate.scad", file_header=header)
+    scad_render_to_file(cage_base_plate(), "scad/misc/Cage_Base_Plate.scad", file_header=header)
 
-    scad_render_to_file(rpi_mount(), "scad/rpi_mount.scad", file_header=header)
+    scad_render_to_file(rpi_mount(), "scad/misc/rpi_mount.scad", file_header=header)
 
-    scad_render_to_file(board_hook(), "scad/wall_hook.scad", file_header=header)
+    scad_render_to_file(board_hook(), "scad/misc/wall_hook.scad", file_header=header)
 
-    scad_render_to_file(cage_circumference(), "scad/cage_circumference.scad", file_header=header)
+    scad_render_to_file(cage_circumference(), "scad/miscl/cage_circumference.scad", file_header=header)
