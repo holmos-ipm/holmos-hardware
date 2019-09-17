@@ -5,8 +5,9 @@ The [software repository](https://github.com/holmos-ipm/holmos-rpi/) has more in
 
 This repository contains instructions to build your own copy of the setup, and files describing the 3D-printed parts.
 
-If you want to build a Holmos microscope, but have difficulty acquiring the parts, or do not have accesss to a 3D printer, please contact us.
-Until we are flooded by requests, we may be to provide the printed parts and help you find the parts you need to buy.
+If you want to be one of the first to build Holmos microscope, you can contact us.
+We have a couple of complete kits (3D-printed and bought parts) that we can sell for <200 €.
+This offer is valid until we run out of parts.
 
 ## Requirements
 ### Software
