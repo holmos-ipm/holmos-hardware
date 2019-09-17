@@ -30,9 +30,13 @@ class HolmosComponent:
 
 
 mount_bottom = False  # mount at bottom (screw into something) or top (hang from something)
+h = 600
+z0 = 30
 
-part_list = [HolmosComponent(50, cage.rpi_mount),
+part_list = [
+             HolmosComponent(-z0, cage.cage_circumference),
              HolmosComponent(0, Holmos.rpi_cam_mount),
+             HolmosComponent(50, cage.rpi_mount),
              HolmosComponent(185, lens_mounts.round_mount_light,
                              inner_diam=20, opening_angle=None, stop_inner_diam=19, clip_length=20,
                              name="objective_lens_mount"),
@@ -43,21 +47,14 @@ part_list = [HolmosComponent(50, cage.rpi_mount),
              HolmosComponent(306, lens_mounts.round_mount_light, inner_diam=25.4, opening_angle=None,
                              stop_inner_diam=23.4,
                              name="condensor_lens_mount"),
-             HolmosComponent(500, cage.cage_stabilizer),
+             HolmosComponent(500, cage.board_hook, name="board_hook"),
              HolmosComponent(550, lens_mounts.round_mount_light, inner_diam=12, opening_angle=None,
-                             name="laser_mount")
+                             name="laser_mount"),
+             HolmosComponent(h-z0, cage.cage_circumference),
              ]
-
-if mount_bottom:
-    part_list = [HolmosComponent(-35, cage.cage_base_plate, name="base_plate")] + part_list
-else:
-    part_list = [HolmosComponent(600, cage.board_hook, name="board_hook")] + part_list
 
 
 def holmos_full_assembly():
-    z0 = 30
-    h = 600
-
     assembly = translate((15, -25, h/2))(cylinder(d=6, h=h, center=True))
     for component in part_list:
         print("adding {}".format(component.name))
@@ -97,4 +94,4 @@ if __name__ == '__main__':
         part_scad = part.part_func(assemble=False, **part.kwargs)
         scad_render_to_file(part_scad, os.path.join("scad/complete_setup/", filename), file_header=header)
 
-    #render_scad_dir_to_stl_dir("scad/complete_setup", "stl/complete_setup")
+    render_scad_dir_to_stl_dir("scad/complete_setup", "stl/complete_setup")

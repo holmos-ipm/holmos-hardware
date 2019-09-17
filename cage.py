@@ -186,7 +186,7 @@ def board_hook(clip_z=30, hook_opening=18, assemble=False):
         return assembly
 
 
-def cage_circumference(d_outer=80.5):
+def cage_circumference(d_outer=80.5, assemble=None):
     """Circle to fit cage ends, e.g. to transport cage inside a cylindrical tube"""
     clamp = translate((0, 0, 5))(cage_3_clips(inside=True))  # bottom at z=0
 
