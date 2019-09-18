@@ -1,0 +1,3 @@
+git info for ../holmos-hardware:
+Revision v1.0-11-g3a60732
+...with no changed files.

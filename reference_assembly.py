@@ -4,11 +4,17 @@ Created on 16.01.2019
 
 @author: beckmann
 
-Demo of how all parts go together
+Demo of how all parts go together.
+Generates SCAD files, and (if Openscad is found) compiles them to STL.
+
+The STL files are added by manually copying ./stl/reference_assembly to ./
+This way, they are not accidentally updated; the compiled STL files should only be updated on milestones, keeping the
+git repository small.
 """
 import os
 
 from solid import *
+
 import Holmos
 import cage
 import lens_mounts

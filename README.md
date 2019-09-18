@@ -10,24 +10,20 @@ We have a couple of complete kits (3D-printed and bought parts) that we can sell
 This offer is valid until we run out of parts.
 
 ## Requirements
-### Software
-To get scad files:
-* A clone of this repository
-* Python (only tested for python 3)
-* [Solidpython](https://solidpython.readthedocs.io/en/latest/) - usually available through `pip install solidpython`
-
-To convert from scad to stl:
-* [OpenSCAD](http://www.openscad.org)
-
-And finally, you'll need to print the .stl files.
-We developed this using Ultimaker printers and their [Cura](https://ultimaker.com/en/products/ultimaker-cura-software) software,
-but any other printer should work.
 
 ### Purchased parts
 See [Teileliste](Teileliste.md)
 The steel rods need to be 600 mm long if you are using the reference design.
 
-## What to print, and where to put it
+### Download; what to print
+Unless you want to modify things, you can download .STL files directly from the `reference_assembly` subfolder [here](reference_assembly/).
+Your printer's software should be able to read them directly.
+Print one of each file, and you'll have everything you need.
+
+We developed this using Ultimaker printers and their [Cura](https://ultimaker.com/en/products/ultimaker-cura-software) software,
+but any other printer should work.
+
+### Assembly
 Start by looking at `reference_assembly.py`.
 It contains a list of parts, and their `z` positions along the optical axis.
 Run the file, and it will generate a scad file showing the entire assembly (except rails).
@@ -54,3 +50,14 @@ It can be stored in a `crane_mirror(mirror_offset_x=0, crane_only=True)` for tra
 ## Tweaking
 How tight the clips become depends on your printer, printer settings and the rods you are using.
 `base.test_rod_clamp_tightness()` can be used to generate a test object with several clips.
+
+## Modifying the 3D parts
+To modify the parts, you'll need to compile from Python to SCAD to STL:
+
+To get scad files:
+* A clone of this repository
+* Python (only tested for python 3)
+* [Solidpython](https://solidpython.readthedocs.io/en/latest/) - usually available through `pip install solidpython`
+
+To convert from scad to stl:
+* [OpenSCAD](http://www.openscad.org)
