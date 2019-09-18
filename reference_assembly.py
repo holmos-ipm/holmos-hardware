@@ -14,14 +14,10 @@ import cage
 import lens_mounts
 import mirror_mount
 from file_tools import safe_mkdir
-from render_stl import render_scad_dir_to_stl_dir
+from render_stl import render_scad_dir_to_stl_dir, print_git_info_to_dir
 
 
 class HolmosComponent:
-    part_func = None
-    z_above_cam = None
-    name = None
-
     def __init__(self, z, part_func, name=None, **kwargs):
         self.part_func = part_func
         self.z = z
@@ -86,12 +82,13 @@ if __name__ == '__main__':
         os.remove(os.path.join("stl/complete_setup", file))
 
     for number, part in enumerate(part_list):
-        name = part.name
-        if name is None:
-            name = part.part_func.__name__
-        filename = "{:02d} - {}.scad".format(number, name)
+        name_for_fn = part.name
+        if name_for_fn is None:
+            name_for_fn = part.part_func.__name__
+        filename = "{:02d} - {}.scad".format(number, name_for_fn)
         print(filename)
         part_scad = part.part_func(assemble=False, **part.kwargs)
         scad_render_to_file(part_scad, os.path.join("scad/complete_setup/", filename), file_header=header)
 
+    print_git_info_to_dir("stl/complete_setup")
     render_scad_dir_to_stl_dir("scad/complete_setup", "stl/complete_setup")

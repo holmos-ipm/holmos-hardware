@@ -49,3 +49,36 @@ def render_scad_dir_to_stl_dir(scad_dir, stl_dir):
         time.sleep(1)
 
     print(processes[0].stderr)
+
+
+def print_git_info_to_dir(path):
+    info = get_git_info(path)
+    with open(os.path.join(path, "version_info.txt"), "w+") as f:
+        f.write(info)
+
+
+def get_git_info(path='.'):
+    try:
+        import git
+    except ModuleNotFoundError:
+        print("git not found. Aborting.")
+        return
+    repo = git.Repo(path, search_parent_directories=True)
+    git_root = repo.git.rev_parse("--show-toplevel")
+
+    info = "git info for ../{}:\n".format(os.path.split(git_root)[1])  # trailing folder name in path = repo name
+
+    info += "Revision {}\n".format(repo.git.describe())
+
+    changed_files = [item.a_path for item in repo.index.diff(None)]
+    if len(changed_files) > 0:
+        info += "...with changes to:\n"
+    else:
+        info += "...with no changed files.\n"
+    for file in changed_files:
+        info += "    {}\n".format(file)
+    return info
+
+
+if __name__ == '__main__':
+    print(get_git_info())
