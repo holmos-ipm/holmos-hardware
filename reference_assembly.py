@@ -68,18 +68,17 @@ if __name__ == '__main__':
     else:
         header = ""
 
-    if not os.path.exists("scad"):
-        os.mkdir("scad")
+    scad_path = "scad/reference_assembly"
+    stl_path = "stl/reference_assembly"
+    safe_mkdir(scad_path, stl_path)
 
-    scad_render_to_file(holmos_full_assembly(), "scad/full_assembly.scad", file_header=header)
-
-    safe_mkdir("scad/complete_setup", "stl/complete_setup")
+    scad_render_to_file(holmos_full_assembly(), "scad/reference_assembly.scad", file_header=header)
 
     print("cleaning output dirs...")
-    for file in os.listdir("scad/complete_setup"):
-        os.remove(os.path.join("scad/complete_setup", file))
-    for file in os.listdir("stl/complete_setup"):
-        os.remove(os.path.join("stl/complete_setup", file))
+    for file in os.listdir(scad_path):
+        os.remove(os.path.join(scad_path, file))
+    for file in os.listdir(stl_path):
+        os.remove(os.path.join(stl_path, file))
 
     for number, part in enumerate(part_list):
         name_for_fn = part.name
@@ -88,7 +87,7 @@ if __name__ == '__main__':
         filename = "{:02d} - {}.scad".format(number, name_for_fn)
         print(filename)
         part_scad = part.part_func(assemble=False, **part.kwargs)
-        scad_render_to_file(part_scad, os.path.join("scad/complete_setup/", filename), file_header=header)
+        scad_render_to_file(part_scad, os.path.join(scad_path, filename), file_header=header)
 
-    print_git_info_to_dir("stl/complete_setup")
-    render_scad_dir_to_stl_dir("scad/complete_setup", "stl/complete_setup")
+    print_git_info_to_dir(stl_path)
+    render_scad_dir_to_stl_dir(scad_path, stl_path)
