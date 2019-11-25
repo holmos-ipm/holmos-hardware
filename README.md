@@ -30,6 +30,8 @@ Run the file, and it will generate a scad file showing the entire assembly (exce
 In addition, a folder full of the individual parts is generated.
 Print those parts, and assemble them at the positions given, and you should have a good starting point.
 
+For instructions on individual parts, e.g. how to mount purchased parts in the printed mounts, see the [instructions folder]().
+
 ## Optional parts
 ### Stability
 Additional struts and crosses can make the cage more stable.
