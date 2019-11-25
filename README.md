@@ -12,8 +12,8 @@ This offer is valid until we run out of parts.
 ## Requirements
 
 ### Purchased parts
-See [Teileliste](Teileliste.md)
-The steel rods need to be 600 mm long if you are using the reference design.
+See [shopping list](shopping_list.md).
+The steel rods need to be at least 600 mm long if you are using the reference design.
 
 ### Download; what to print
 Unless you want to modify things, you can download .STL files directly from the `reference_assembly` subfolder [here](reference_assembly/).
