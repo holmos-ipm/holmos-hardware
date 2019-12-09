@@ -20,79 +20,8 @@ import numpy
 
 from base import owis_holes, base, sunk_hole, base_rods30
 from file_tools import safe_mkdir
-from helpers import cyl_arc, hexagon, rounded_plate
+from helpers import rounded_plate
 from render_stl import render_scad_dir_to_stl_dir
-
-
-def round_mount_light(inner_diam=17.9, ring_thick=3, opening_angle=30, stop_inner_diam=None, cyl_length=10,
-                      clip_length=10, assemble=False):
-    """
-    mount for cylinder centered on optical axis (z). If opening_angle is None, clamping tabs are added.
-    defaults: mount for Kosmos objective
-    :param inner_diam: usually diameter of thing to be mounted
-    :param ring_thick: thickness of ring determines stiffness
-    :param opening_angle: ring is opened from -angle to +angle
-    :param stop_inner_diam: if not None, a smaller second cylinder acts as a stop, i.e. for a lens.
-    :return: Scad object
-    """
-    base_thick = 5
-    connector_w = 3
-    z_thick = 10  # thickness/z-length of entire assembly
-    z_think_inner = 2
-
-    do_clamp = False
-    if opening_angle is None:
-        do_clamp = True
-        opening_angle = numpy.arcsin(ring_thick/inner_diam)
-        opening_angle = numpy.rad2deg(opening_angle)
-
-    base_plate = translate([0, -20 + base_thick / 2, 0])(
-        rotate([90, 0, 0])(
-            rounded_plate([30, 10, base_thick], 4)
-        )
-    )
-    base_plate += translate((0, 0, (clip_length-10)/2))(base(z_length=clip_length))
-
-    outer_diam = inner_diam+2 * ring_thick
-    ring = cyl_arc(r=outer_diam/2, h=cyl_length, a0=90+opening_angle, a1=90-opening_angle)
-    ring = translate((0, 0, (cyl_length-z_thick)/2))(ring)
-    if stop_inner_diam is None:
-        ring -= cylinder(d=inner_diam, h=2*cyl_length, center=True)
-    else:
-        ring -= cylinder(d=stop_inner_diam, h=2*cyl_length, center=True)
-        ring -= translate((0,0,z_think_inner))(cylinder(d=inner_diam, h=z_thick, center=True))
-
-    if do_clamp:  # clamps with holes extending towards +y
-        hex_diam = 5.5  # M3 nut
-        clamp_extension = hex_diam + 2
-        hole_diam = 3.5
-        clamp_length = ring_thick+clamp_extension
-        single_clamp = rounded_plate((clamp_length, z_thick, ring_thick), True)
-        through_nut_hole = cylinder(d=hole_diam, h=2*ring_thick, center=True)
-        through_nut_hole += translate((0, 0, ring_thick/2))(hexagon(hex_diam, ring_thick/3))
-        single_clamp -= translate([ring_thick/2, 0, 0])(through_nut_hole)
-        ring += translate([ring_thick, inner_diam/2 + clamp_length/2, 0])(rotate([90, 0, 90])(single_clamp))
-        ring += translate([-ring_thick, inner_diam/2 + clamp_length/2, 0])(rotate([-90, 0, 90])(single_clamp))
-
-    connector_h = (40 - inner_diam) / 2
-    connector_yc = inner_diam / 2 + connector_h / 2
-    connector = translate([5, -connector_yc, 0])(cube([connector_w, connector_h, z_thick], center=True))
-    connector += translate([-5, -connector_yc, 0])(cube([connector_w, connector_h, z_thick], center=True))
-
-    label = "d = {:.1f}".format(inner_diam)
-    info_text = linear_extrude(height=.5, center=True)(
-                    text(label, valign="center", halign="center", size=3., segments=1,
-                         font="Liberation Mono:style=Bold")
-                )
-
-    base_plate += translate((0, -(20-base_thick/2), z_thick/2))(info_text)
-
-    mount = base_plate + ring + connector
-
-    if assemble:
-        mount = rotate((0, 180, 0))(mount)
-
-    return mount
 
 
 def rpi_cam_mount(assemble=False):
@@ -273,7 +202,6 @@ def tube_with_rodmount():
 
 
 if __name__ == "__main__":
-    import os
 
     _fine = True
     render_STL = False

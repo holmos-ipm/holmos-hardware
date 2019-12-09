@@ -17,7 +17,7 @@ from solid import *
 
 import Holmos
 import cage
-import lens_mounts
+import round_mounts
 import mirror_mount
 from file_tools import safe_mkdir
 from render_stl import render_scad_dir_to_stl_dir, print_git_info_to_dir
@@ -39,18 +39,18 @@ part_list = [
              HolmosComponent(-z0, cage.cage_circumference),
              HolmosComponent(0, Holmos.rpi_cam_mount),
              HolmosComponent(50, cage.rpi_mount),
-             HolmosComponent(185, lens_mounts.round_mount_light,
+             HolmosComponent(185, round_mounts.round_mount_light,
                              inner_diam=20, opening_angle=None, stop_inner_diam=19, clip_length=20,
                              name="objective_lens_mount"),
              HolmosComponent(216, Holmos.slide_holder),
              HolmosComponent(252, Holmos.slide_holder, angle_deg=45,
                              name="beamsplitter_mount"),
              HolmosComponent(275, mirror_mount.crane_mirror),
-             HolmosComponent(306, lens_mounts.round_mount_light, inner_diam=25.4, opening_angle=None,
+             HolmosComponent(306, round_mounts.round_mount_light, inner_diam=25.4, opening_angle=None,
                              stop_inner_diam=23.4,
                              name="condensor_lens_mount"),
              HolmosComponent(500, cage.board_hook, name="board_hook"),
-             HolmosComponent(550, lens_mounts.round_mount_light, inner_diam=12, opening_angle=None,
+             HolmosComponent(550, round_mounts.round_mount_light, inner_diam=12, opening_angle=None,
                              name="laser_mount"),
              HolmosComponent(h-z0, cage.cage_circumference),
              ]
