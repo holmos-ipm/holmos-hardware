@@ -34,11 +34,7 @@ For instructions on individual parts, e.g. how to mount purchased parts in the p
 
 ## Optional parts
 ### Stability
-Additional struts and crosses can make the cage more stable.
-
-### Mounting
-The `cage.board_hook()` can be used to hang the setup from a wall instead of mounting it to a surface.
-To keep the cage stable at a useful distance from the wall, a `test_rod_clamp_tightness()` with three clips can be used.
+Additional struts and crosses (e.g. Rpi_mount) can make the cage more stable.
 
 ### Light shield
 A `lens_mounts.round_mount_light(20, opening_angle=0, cyl_length=40, ring_thick=2)` can help shield the camera against stray light and make the setup work better in bright environments.
@@ -52,6 +48,7 @@ It can be stored in a `crane_mirror(mirror_offset_x=0, crane_only=True)` for tra
 ## Tweaking
 How tight the clips become depends on your printer, printer settings and the rods you are using.
 `base.test_rod_clamp_tightness()` can be used to generate a test object with several clips.
+Edit `Rods6mm_tightness` in `global_settings.ini`to change the fit globally.
 
 ## Modifying the 3D parts
 To modify the parts, you'll need to compile from Python to SCAD to STL:

@@ -236,4 +236,4 @@ if __name__ == "__main__":
 
     scad_render_to_file(board_hook(), "scad/misc/wall_hook.scad", file_header=header)
 
-    scad_render_to_file(cage_circumference(), "scad/miscl/cage_circumference.scad", file_header=header)
+    scad_render_to_file(cage_circumference(), "scad/misc/cage_circumference.scad", file_header=header)
