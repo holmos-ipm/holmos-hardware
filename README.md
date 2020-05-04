@@ -35,7 +35,7 @@ For instructions on individual parts, e.g. how to mount purchased parts in the p
 Additional struts and crosses (e.g. Rpi_mount) can make the cage more stable.
 
 ### Light shield
-A `lens_mounts.round_mount_light(20, opening_angle=0, cyl_length=40, ring_thick=2)` can help shield the camera against stray light and make the setup work better in bright environments.
+A `round_mounts.round_mount_light(20, opening_angle=0, cyl_length=40, ring_thick=2)` can help shield the camera against stray light and make the setup work better in bright environments.
 
 ### Transport
 The cage-based setup fits inside a tube (HT DN90).
