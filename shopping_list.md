@@ -10,7 +10,11 @@
 * Beamsplitter [6,90€ forscherladen](https://www.forscherladen.de/teildurchlaessiger-vorderflaechen-glasspiegel-40-mm-x-30-mm-x-1.3-mm::10-511.TFG.html)
 * Mirror [2,90€ forscherladen](https://www.forscherladen.de/vorderflaechen-glasspiegel-22-mm-x-15-5-mm-x-1-3mm::10-505.VFS.html)
 
-* Laser: most red lasers with a removable lens work, e.g. from laserfuchs.de - We have tried dd635-1-512x342 or [16€ DOE-QD650-0.4-12-10-22](https://www.laserfuchs.de/Laserfuchs-DOE-QD650-0.4-12-10x22-ADJ/70108712) successfully (Their links go out of date quickly, though...).
+* Laser: We have tried dd635-1-512x342 or [16€ DOE-QD650-0.4-12-10-22](https://www.laserfuchs.de/Laserfuchs-DOE-QD650-0.4-12-10x22-ADJ/70108712) successfully (Their links go out of date quickly, though...).
+If you're looking for a laser and know what you are doing:
+    * It needs to be uncollimated, emitting a divergent beam. Very cheap lasers come with glued-on lens; some moderately cheap lasers (see above) come with a screw-in lens that can be removed easily.
+    * No need for power, you are shining straight into the camera. Do your eyes a favor and use a Class 1 Laser.
+    * Small laser modules with 5V input can be powered from a RPi USB port 
 * Objective [55 € edmund optics](https://www.edmundoptics.de/p/4x-din-achromatic-commercial-grade-objective/5381/)
 
 * Steel rods 3Stk, 6mm*1m [15€ Hornbach](https://www.hornbach.de/shop/Rundstange-Edelstahl-6-mm-1-m/7813904/artikel.html)
