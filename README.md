@@ -18,6 +18,8 @@ Unless you want to modify things, you can download .STL files directly from the 
 Your printer's software should be able to read them directly.
 Print one of each file, and you'll have everything you need.
 
+If you are using parts with different diameters than the reference_assembly, modify the printable parts accordingly.
+
 We developed this using Ultimaker printers and their [Cura](https://ultimaker.com/en/products/ultimaker-cura-software) software,
 but any other printer should work.
 
@@ -29,6 +31,9 @@ In addition, a folder full of the individual parts is generated.
 Print those parts, and assemble them at the positions given, and you should have a good starting point.
 
 For instructions on individual parts, e.g. how to mount purchased parts in the printed mounts, see the [instructions folder](instructions).
+
+### Adjustment, Usage
+See [instructions/adjustment.md]() in this repository, or browse the [German student documentation](https://github.com/holmos-mikroskop/holmos/wiki)
 
 ## Optional parts
 ### Stability
