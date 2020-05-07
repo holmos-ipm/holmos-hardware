@@ -58,7 +58,7 @@ To modify the parts, you'll need to compile from Python to SCAD to STL:
 
 To re-create all parts, run
 ```
-python Holmos.py
+python reference_assembly.py
 ```
 Be aware that this might take a long time (more than an hour) depending on the resolution you choose in OpenSCAD. You might need to install missing packages with `pip install <package>`. Also, make sure you have OpenSCAD installed in the location specified in `global_settings.ini`
 
