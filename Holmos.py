@@ -16,6 +16,7 @@ If assemble=True, return the part so that the optical axis is at z=0, with laser
 """
 
 from solid.utils import *  # pip install Solidpython
+from solid import *  # pip install Solidpython
 import numpy
 
 from base import owis_holes, base, sunk_hole, base_rods30
