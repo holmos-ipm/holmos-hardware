@@ -35,6 +35,10 @@ For instructions on individual parts, e.g. how to mount purchased parts in the p
 ### Adjustment, Usage
 See [instructions/adjustment.md]() in this repository, or browse the [German student documentation](https://github.com/holmos-mikroskop/holmos/wiki)
 
+### Optics Design
+[instructions/optics_design.md]() explains the optics design in some more detail. 
+You can probably skip this if you just want to use the microscope. 
+
 ## Optional parts
 ### Stability
 Additional struts and crosses (e.g. Rpi_mount) can make the cage more stable.

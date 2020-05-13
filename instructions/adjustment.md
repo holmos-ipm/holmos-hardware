@@ -1,3 +1,6 @@
+# Adjusting a HolMOS microscope
+This text tells you what to do; for a deeper understanding of _why_, see [optics_design.md]()
+
 Start by putting everything at the positions given in [reference_assembly.py](../reference_assembly.py).
 If you are using the recommended parts, that should be a very good starting position.
 
