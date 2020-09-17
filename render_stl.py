@@ -10,13 +10,20 @@ import configparser
 import os
 import subprocess
 import time
+# library to fetch os information
+import platform
 
+# os_is can be 'windows', 'darwin' or 'linux'
+os_is = platform.system().lower()
+# uncommend below for troubleshouting
+# print('the programm is runnuing on ' + os_is)
 
 IDLE_PRIORITY_CLASS = 0x00000040
 
 __config = configparser.ConfigParser()
 __config.read("global_settings.ini")
-path_to_openscad = __config.get("environ", "path_to_openscad", fallback="not configured")
+# using f'string' format to create the right os path
+path_to_openscad = __config.get("environ", f"{os_is}_path_to_openscad", fallback="not configured")
 
 
 def render_scad_dir_to_stl_dir(scad_dir, stl_dir):
@@ -35,7 +42,10 @@ def render_scad_dir_to_stl_dir(scad_dir, stl_dir):
             print(outfile, "deleted")
         cmdline = "{} -o \"{}\" \"{}\"".format(path_to_openscad, outfile, filepath)
         print(cmdline)
-        proc = subprocess.Popen(cmdline, creationflags=IDLE_PRIORITY_CLASS)
+        if os_is == 'windows':  # windows path
+            proc = subprocess.Popen(cmdline, creationflags=IDLE_PRIORITY_CLASS)
+        else:                   # mac OS and linux path
+            proc = subprocess.Popen(cmdline, shell=True)
         processes.append(proc)
 
     while True:
