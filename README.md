@@ -64,7 +64,7 @@ To re-create all parts, run
 ```
 python reference_assembly.py
 ```
-Be aware that this might take a long time (more than an hour) depending on the resolution you choose in OpenSCAD. You might need to install missing packages with `pip install <package>`. Also, make sure you have OpenSCAD installed in the location specified in `global_settings.ini`
+Be aware that this might take a long time (more than an hour) depending on the resolution you choose in OpenSCAD. You can install the required python packages with `pip3 install -r requirements.txt`. Also, make sure you have OpenSCAD installed in the location specified in `global_settings.ini`
 
 To get scad files:
 * A clone of this repository
